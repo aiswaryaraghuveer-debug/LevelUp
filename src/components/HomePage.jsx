@@ -3,12 +3,14 @@ import QuestCard from "./QuestCard";
 import {initialState} from "../../data/data.js";
 function HomePage() {
   return (
-    <div>
-      <h1>Welcome to LEVELUp!</h1>
-      {initialState.quests.map((quest) => (
-        <QuestCard key={quest.id} quest={quest} />
-      ))}
+   
+       <div className="content-grid">
+         <section className="card quests-card">
+        <QuestCard initialState={initialState} />
+      </section>
     </div>
+ 
+   
   );
 }
 export default HomePage;
