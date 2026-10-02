@@ -23,7 +23,7 @@ function AppHeader() {
             <div className="header-actions">
                 <div className="command-wrap">
                     <span className="search-icon">⌕</span>
-                    <input placeholder="Search quests, habits, or commands..." className="command-input" value=""></input>
+                    <input placeholder="Search quests, habits, or commands..." className="command-input" ></input>
                 </div>
                 <div className="avatar">{initialState.profile.name.split("")[0]}</div>
             </div>

@@ -9,7 +9,7 @@ function SideBar({ navItems }) {
                 </div>
                 <div className="brand-tagline">Small steps. Big dreams</div>
             </div>
-                <div clsassName="nav">
+                <div className="nav">
                     {navItems.map((item) => (
                         <div className="nav-item" key={item.label}>
                             <a className="nav-icon" href={item.href}>{item.icon}</a>
