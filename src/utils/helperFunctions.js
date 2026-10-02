@@ -50,7 +50,7 @@ export function addXP(user, amount) {
 
 export function calculateLevel(xp) {
   if (xp == 0) return 1;
-  return Math.ceil(xp / 100);
+  return Math.ceil(xp / 200);
 }
 
 export function groupByCategory(tasks) {
@@ -67,4 +67,9 @@ export function groupByCategory(tasks) {
     );
   }
   return newObj;
+}
+export function getHour(minutes){
+  const hourinFormat= minutes/60;
+  const hour=hourinFormat.toFixed(2).split(".")[0]+"h "+hourinFormat.toFixed(2).split(".")[1]+"min";
+  return hour;
 }
