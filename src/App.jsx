@@ -8,9 +8,10 @@ import {navItems} from "../data/data.js";
 function App(){
   return (
     <div>
-      <AppHeader />
+       <Sidebar navItems={navItems} />
+      
       <div className="main">
-        <Sidebar navItems={navItems} />
+       <AppHeader />
         <HomePage />
       </div>  
     </div>
