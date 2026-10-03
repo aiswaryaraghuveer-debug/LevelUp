@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
 import { navItems, themeOptions } from "../../data/data.js";
@@ -8,6 +8,17 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
 
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const themePickerRef = useRef(null);
+    const commandWrapRef = useRef(null);
+
+    useEffect(() => {
+        const handleOutsidePointer = (event) => {
+            if (themePickerRef.current && !themePickerRef.current.contains(event.target)) setIsThemeMenuOpen(false);
+            if (commandWrapRef.current && !commandWrapRef.current.contains(event.target)) setSearchQuery("");
+        };
+        document.addEventListener("pointerdown", handleOutsidePointer);
+        return () => document.removeEventListener("pointerdown", handleOutsidePointer);
+    }, []);
     const navigate = useNavigate();
     const greeting = getGreeting(initialState);
     const level = calculateLevel(initialState.profile.xp);
@@ -76,7 +87,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
             </div>
 
             <div className="header-actions">
-                <div className="command-wrap">
+                <div className="command-wrap" ref={commandWrapRef}>
                     <span className="search-icon" aria-hidden="true">⌕</span>
                     <input
                         type="search"
@@ -108,7 +119,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
                     )}
                 </div>
                 <DataTransferControls compact showImport={false} onExportData={onExportData} onExportExcel={onExportExcel} />
-                <div className="theme-picker">
+                <div className="theme-picker" ref={themePickerRef}>
                     <button
                         className="icon-button theme-shortcut"
                         type="button"
