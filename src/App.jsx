@@ -11,6 +11,7 @@ import MoodPage from "./components/MoodPage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
 import CaloriePage from "./components/CaloriePage.jsx";
 import AnalyticsPage from "./components/AnalyticsPage.jsx";
+import DailyBriefing from "./components/DailyBriefing.jsx";
 import "./styles.css";
 import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
@@ -306,6 +307,18 @@ function AuthenticatedApp({ account, onLogout }) {
   const [appState, setAppState] = useState(() => loadAppState(storageKey));
   const [dataTransferMessage, setDataTransferMessage] = useState("");
   const [questCelebrationId, setQuestCelebrationId] = useState(0);
+  const [briefingMode, setBriefingMode] = useState(null);
+  useEffect(() => {
+    const hour = new Date().getHours();
+    const mode = hour >= 5 && hour < 12 ? "morning" : hour >= 18 ? "night" : null;
+    if (!mode) return;
+    const dateKey = getLocalDateKey();
+    const briefingKey = "levelup-briefing-v1:" + account.key + ":" + dateKey + ":" + mode;
+    if (window.localStorage.getItem(briefingKey)) return;
+    window.localStorage.setItem(briefingKey, "shown");
+    setBriefingMode(mode);
+  }, [account.key]);
+
   const enabledNavItems = navItems.filter((item) => !item.featureKey || appState.settings.features?.[item.featureKey]);
 
   useEffect(() => {
