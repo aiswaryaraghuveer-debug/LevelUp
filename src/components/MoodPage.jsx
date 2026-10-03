@@ -9,7 +9,7 @@ function MoodPage({ initialState, onChange }) {
   const [editingId,setEditingId]=useState(null),[deleteId,setDeleteId]=useState(null);
   const groupedEntries=useMemo(()=>[...(initialState.settings.moodEntries||[])].sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||b.id).localeCompare(String(a.createdAt||a.id))).reduce((g,e)=>{(g[e.date]??=[]).push(e);return g},{}),[initialState.settings.moodEntries]);
 
-  function toggleDate(value){setOpenDates(prev=>{const next=new Set(prev);if(next.has(value))next.delete(value);else next.add(value);return next})}
+  function toggleDate(value){setOpenDates(prev=>{const next=new Set(prev||[]);const first=Object.keys(groupedEntries)[0];if(prev===null){next.add("___collapsed_first___");}else if(next.has("___collapsed_first___")&&value===first){next.delete("___collapsed_first___");next.add(value);}else if(next.has(value))next.delete(value);else next.add(value);return next})}
   function resetForm(){setDate(today);setMood("good");setNote("");setEditingId(null)}
   function saveMood(event){event.preventDefault();const entries=initialState.settings.moodEntries||[];if(editingId){onChange({moodEntries:entries.map(e=>e.id===editingId?{...e,date,mood,note:note.trim(),updatedAt:new Date().toISOString()}:e)});}else{onChange({moodEntries:[{id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date,mood,note:note.trim(),createdAt:new Date().toISOString()},...entries]});}resetForm();}
   function editMood(entry){setEditingId(entry.id);setDate(entry.date);setMood(entry.mood);setNote(entry.note||"");setFormOpen(true);}
