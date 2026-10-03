@@ -2869,3 +2869,24 @@ a {
 @media (max-width: 520px) {
   .tracker-summary { grid-template-columns: 1fr; }
 }
+
+.tracker-list {
+  max-height: 620px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.tracker-date-group {
+  display: grid;
+  gap: 10px;
+}
+.tracker-date-heading {
+  position: sticky;
+  top: -1px;
+  z-index: 2;
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 14px;
+}
