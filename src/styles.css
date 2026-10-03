@@ -3034,3 +3034,100 @@ a {
   .level-up-celebration,.level-up-rune,.level-up-celebration::before,.level-up-celebration::after { animation:none; }
   .level-up-celebration { opacity:1; }
 }
+
+
+/* Mobile sign-up polish */
+.auth-avatar-options button {
+  overflow: hidden;
+  padding: 2px;
+}
+.auth-avatar-options button svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+@media (max-width: 760px) {
+  .auth-panel:has(.auth-form-signup) {
+    padding: 10px 18px 14px;
+  }
+  .auth-panel:has(.auth-form-signup) .auth-brand-lockup {
+    margin-bottom: 8px;
+  }
+  .auth-panel:has(.auth-form-signup) .auth-brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+  .auth-panel:has(.auth-form-signup) h1 {
+    margin: 4px 0 5px;
+    font-size: 25px;
+  }
+  .auth-panel:has(.auth-form-signup) .auth-intro {
+    margin: 0 0 8px;
+    line-height: 1.35;
+  }
+  .auth-panel:has(.auth-form-signup) .auth-tabs {
+    margin-bottom: 9px;
+  }
+  .auth-form-signup {
+    gap: 8px;
+  }
+  .auth-form-signup .form-group {
+    gap: 4px;
+  }
+  .auth-form-signup .input,
+  .auth-form-signup .select {
+    min-height: 38px;
+    padding: 8px 10px;
+  }
+  .auth-form-signup .auth-two-columns {
+    gap: 8px;
+  }
+  .auth-form-signup .auth-goal-input {
+    min-height: 52px;
+  }
+  .auth-avatar-picker {
+    margin-top: 1px;
+  }
+  .auth-avatar-options {
+    display: grid;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .auth-avatar-options button {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    min-width: 0;
+    border-radius: 9px;
+  }
+  .auth-form-signup .auth-submit {
+    margin-top: 2px;
+  }
+}
+@media (max-width: 430px) {
+  .auth-panel:has(.auth-form-signup) {
+    padding-inline: 14px;
+  }
+  .auth-avatar-options {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 5px;
+  }
+}
+@media (max-width: 360px) {
+  .auth-panel:has(.auth-form-signup) {
+    padding-inline: 12px;
+  }
+  .auth-form-signup {
+    gap: 6px;
+  }
+  .auth-avatar-options {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .auth-avatar-options button {
+    border-radius: 8px;
+    padding: 1px;
+  }
+}
