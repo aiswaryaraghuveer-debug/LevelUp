@@ -426,6 +426,17 @@ function AuthenticatedApp({ account, onLogout }) {
         : Math.min(distributedReward, remainingDailyXP);
       const xpDelta = completed ? completionReward : -selectedTodayQuest.dailyXPReward;
       const xp = Math.min(MAX_XP, Math.max(0, previous.profile.xp + xpDelta));
+      const activityHistory = Array.isArray(previous.activityHistory) ? [...previous.activityHistory] : [];
+      const existingActivityIndex = activityHistory.findIndex((item) => item.date === currentDate);
+      const activity = existingActivityIndex >= 0
+        ? { ...activityHistory[existingActivityIndex] }
+        : { date: currentDate, xp: 0, quests: 0, completedQuests: 0, totalQuests: todaysQuests.length, focusMinutes: 0 };
+      activity.xp = Number(activity.xp || 0) + Math.max(0, xpDelta);
+      activity.quests = Number(activity.quests || 0) + 1;
+      activity.completedQuests = Number(activity.completedQuests || 0) + (completed ? 1 : 0);
+      activity.totalQuests = todaysQuests.length;
+      if (existingActivityIndex >= 0) activityHistory[existingActivityIndex] = activity;
+      else activityHistory.push(activity);
       const streakProgress = completed
         ? getStreakAfterQuestCompletion(previous.profile.streak, previous.lastQuestCompletionDate)
         : { streak: previous.profile.streak, lastCompletedDate: previous.lastQuestCompletionDate };
