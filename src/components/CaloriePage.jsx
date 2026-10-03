@@ -8,7 +8,7 @@ function CaloriePage({ initialState, onChange }) {
   const [calories, setCalories] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(true);
-  const [openDates, setOpenDates] = useState(() => new Set());
+  const [openDates, setOpenDates] = useState(null);
   const entries = useMemo(() => [...(initialState.settings.calorieEntries || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.calorieEntries]);
   const groupedEntries = useMemo(() => {
     return entries.reduce((groups, entry) => {
@@ -21,12 +21,7 @@ function CaloriePage({ initialState, onChange }) {
   const total = entries.filter((entry) => entry.date === today).reduce((sum, entry) => sum + Number(entry.calories || 0), 0);
 
   function toggleDate(date) {
-    setOpenDates((previous) => {
-      const next = new Set(previous);
-      if (next.has(date)) next.delete(date);
-      else next.add(date);
-      return next;
-    });
+    setOpenDates((previous) => { const next = new Set(previous || []); if (previous === null) { next.delete(date); next.add("___collapsed_first___"); } else if (next.has("___collapsed_first___") && date === Object.keys(groupedEntries)[0]) { next.delete("___collapsed_first___"); next.add(date); } else if (next.has(date)) next.delete(date); else next.add(date); return next; });
   }
 
   function saveCalories(event) {
@@ -65,7 +60,7 @@ function CaloriePage({ initialState, onChange }) {
           {logsOpen && (
             <>
               {orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
-                const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+                const isOpen = openDates === null ? index === 0 : openDates.has(date);
                 return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
                   <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
                     <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
