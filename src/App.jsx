@@ -680,7 +680,7 @@ function AuthenticatedApp({ account, onLogout }) {
             <p className="app-footer-copyright">© {new Date().getFullYear()} Aiswarya Raghuveer. All rights reserved.</p>
             <div className="app-footer-meta">
               <span>Released October 3, 2026</span>
-              <span>Version 0.0.1</span>
+              <span>Version 0.0.2</span>
               <a href="mailto:aiswaryaraghuveer@gmail.com">aiswaryaraghuveer@gmail.com</a>
             </div>
           </footer>
