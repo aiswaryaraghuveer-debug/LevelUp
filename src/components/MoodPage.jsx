@@ -85,3 +85,4 @@ function MoodPage({ initialState, onChange }) {
     </section>
   );
 }
+export default MoodPage;
