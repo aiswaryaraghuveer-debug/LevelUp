@@ -480,6 +480,27 @@ function AuthenticatedApp({ account, onLogout }) {
   function resetData() {
     setAppState(initialState);
   }
+  function resetTracker(trackerKey) {
+    const trackerData = {
+      journal: { journalEntries: [] },
+      mood: { moodEntries: [] },
+      expenses: { expenses: [], expenseIncome: 0, expenseGoal: 0 },
+      calories: { calorieEntries: [] },
+    };
+    if (!trackerData[trackerKey]) return;
+    setAppState((previous) => ({
+      ...previous,
+      settings: {
+        ...previous.settings,
+        ...trackerData[trackerKey],
+        features: {
+          ...previous.settings.features,
+          [trackerKey]: false,
+        },
+      },
+    }));
+  }
+
   function toggleNotifications() {
     setAppState((previous) => ({
       ...previous,
@@ -692,7 +713,7 @@ function AuthenticatedApp({ account, onLogout }) {
             <Routes>
               <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
               <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onResetTracker={resetTracker} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
               <Route path="/journal" element={<JournalPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/mood" element={<MoodPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/expenses" element={<ExpensePage initialState={appState} onChange={changeTrackerData} />} />
