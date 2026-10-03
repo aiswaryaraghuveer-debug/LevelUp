@@ -11,7 +11,6 @@ import MoodPage from "./components/MoodPage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
 import CaloriePage from "./components/CaloriePage.jsx";
 import AnalyticsPage from "./components/AnalyticsPage.jsx";
-import DailyBriefing from "./components/DailyBriefing.jsx";
 import "./styles.css";
 import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
@@ -661,15 +660,6 @@ function AuthenticatedApp({ account, onLogout }) {
   }
   return (
     <div className="app" data-theme={appState.settings.theme || "rift"}>
-        {levelUpEvent && (
-          <div key={levelUpEvent.id} className={`level-up-celebration level-up-style-${((levelUpEvent.level - 1) % 5) + 1}`} role="status" aria-live="assertive">
-            <div className="level-up-rune">✦</div>
-            <div className="level-up-label">LEVEL UP</div>
-            <strong>{levelUpEvent.level}</strong>
-            <span>{getLevelTitle(levelUpEvent.level)}</span>
-          </div>
-        )}
-        {briefingMode && <DailyBriefing state={appState} mode={briefingMode} onClose={() => setBriefingMode(null)} />}
         {questCelebrationId > 0 && (
           <div
             key={questCelebrationId}
@@ -702,7 +692,7 @@ function AuthenticatedApp({ account, onLogout }) {
             <Routes>
               <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
               <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onResetTracker={resetTracker} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
               <Route path="/journal" element={<JournalPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/mood" element={<MoodPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/expenses" element={<ExpensePage initialState={appState} onChange={changeTrackerData} />} />
