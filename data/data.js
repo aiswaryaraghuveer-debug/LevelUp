@@ -7,11 +7,11 @@ export const initialState = {
     streak: 0
   },
   quests: [
-    { id: 1, title: "Drink a glass of water", category: "Health", xp: 2, completed: false },
-    { id: 2, title: "Take a 10-minute walk", category: "Fitness", xp: 2, completed: false },
-    { id: 3, title: "Focus on one priority for 25 minutes", category: "Productivity", xp: 2, completed: false },
-    { id: 4, title: "Review notes or learn something new", category: "Learning", xp: 2, completed: false },
-    { id: 5, title: "Write down tomorrow's top priority", category: "Personal", xp: 2, completed: false }
+    { id: 1, title: "Drink a glass of water", category: "Health", xp: 2, completed: false, completedOn: null, dailyXPReward: 0 },
+    { id: 2, title: "Take a 10-minute walk", category: "Fitness", xp: 2, completed: false, completedOn: null, dailyXPReward: 0 },
+    { id: 3, title: "Focus on one priority for 25 minutes", category: "Productivity", xp: 2, completed: false, completedOn: null, dailyXPReward: 0 },
+    { id: 4, title: "Review notes or learn something new", category: "Learning", xp: 2, completed: false, completedOn: null, dailyXPReward: 0 },
+    { id: 5, title: "Write down tomorrow's top priority", category: "Personal", xp: 2, completed: false, completedOn: null, dailyXPReward: 0 }
   ],
   habits: [
     { id: 1, name: "Water", icon: "💧", completed: [false, false, false, false, false, false, false] },
@@ -23,6 +23,12 @@ export const initialState = {
   focusMinutes: 0,
   weeklyXP: [0, 0, 0, 0, 0, 0, 0],
   lastQuestCompletionDate: null,
+  goals: {
+    description: "",
+    durationMonths: 1,
+    startedOn: null,
+    startingXP: null,
+  },
   settings: {
     notifications: true,
     compact: false,

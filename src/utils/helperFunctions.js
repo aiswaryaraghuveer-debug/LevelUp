@@ -51,17 +51,27 @@ export function addXP(user, amount) {
 export const XP_PER_LEVEL = 100;
 export const MAX_LEVEL = 30;
 export const MAX_XP = XP_PER_LEVEL * MAX_LEVEL;
+export const MIN_GOAL_DURATION_MONTHS = 1;
+export const MAX_GOAL_DURATION_MONTHS = 12;
 export const DAILY_QUEST_XP_LIMIT = 20;
 export const MIN_DAILY_QUEST_XP = 1;
 export const MAX_DAILY_QUEST_XP = 2;
 
-export function getStreakAfterQuestCompletion(streak, lastCompletedDate, completedAt = new Date()) {
-  const getDateKey = (date) => [
+export function getLocalDateKey(date = new Date()) {
+  return [
     date.getFullYear(),
     String(date.getMonth() + 1).padStart(2, "0"),
     String(date.getDate()).padStart(2, "0"),
   ].join("-");
-  const today = getDateKey(completedAt);
+}
+
+function getDateOrdinal(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return Math.floor(Date.UTC(year, month - 1, day) / 86400000);
+}
+
+export function getStreakAfterQuestCompletion(streak, lastCompletedDate, completedAt = new Date()) {
+  const today = getLocalDateKey(completedAt);
 
   if (lastCompletedDate === today) {
     return { streak, lastCompletedDate };
@@ -71,13 +81,66 @@ export function getStreakAfterQuestCompletion(streak, lastCompletedDate, complet
   yesterday.setDate(yesterday.getDate() - 1);
 
   return {
-    streak: lastCompletedDate === getDateKey(yesterday) ? streak + 1 : 1,
+    streak: lastCompletedDate === getLocalDateKey(yesterday) ? streak + 1 : 1,
     lastCompletedDate: today,
   };
 }
 
 export function calculateLevel(xp) {
-  return Math.min(MAX_LEVEL, Math.floor(Math.max(0, xp) / XP_PER_LEVEL) + 1);
+  const totalXP = Math.max(0, xp);
+  if (totalXP >= MAX_XP) return MAX_LEVEL;
+  if (totalXP < XP_PER_LEVEL * 2) return 1;
+  return Math.floor((totalXP - XP_PER_LEVEL * 2) / XP_PER_LEVEL) + 2;
+}
+
+export function getLevelProgress(xp) {
+  const totalXP = Math.min(MAX_XP, Math.max(0, xp));
+  const level = calculateLevel(totalXP);
+  if (level === MAX_LEVEL) {
+    return { level, xpInLevel: XP_PER_LEVEL, xpForLevel: XP_PER_LEVEL };
+  }
+
+  const levelStartXP = level === 1 ? 0 : level * XP_PER_LEVEL;
+  const xpForLevel = level === 1 ? XP_PER_LEVEL * 2 : XP_PER_LEVEL;
+  return { level, xpInLevel: totalXP - levelStartXP, xpForLevel };
+}
+
+export function getGoalTarget(goal, currentXP = 0, today = new Date()) {
+  const goals = goal !== null && typeof goal === "object" ? goal : { durationMonths: goal };
+  const durationMonths = goals.durationMonths;
+  const months = Number.isFinite(durationMonths)
+    ? Math.min(MAX_GOAL_DURATION_MONTHS, Math.max(MIN_GOAL_DURATION_MONTHS, Math.floor(durationMonths)))
+    : MIN_GOAL_DURATION_MONTHS;
+  const days = months * 30;
+  const todayKey = getLocalDateKey(today);
+  const startedOn = typeof goals.startedOn === "string" ? goals.startedOn : todayKey;
+  const elapsedDays = Math.max(0, getDateOrdinal(todayKey) - getDateOrdinal(startedOn));
+    const startingXP = goals.startedOn && Number.isFinite(goals.startingXP)
+    ? Math.min(MAX_XP, Math.max(0, goals.startingXP))
+    : Math.min(MAX_XP, Math.max(0, currentXP));
+  const remainingXP = MAX_XP - startingXP;
+  const baseDailyXP = Math.floor(remainingXP / days);
+  const remainderXP = remainingXP % days;
+  const dailyXP = elapsedDays < days
+    ? baseDailyXP + (elapsedDays < remainderXP ? 1 : 0)
+    : Math.min(remainingXP, DAILY_QUEST_XP_LIMIT);
+
+  return { months, days, xp: MAX_XP, level: MAX_LEVEL, dailyXP, elapsedDays, startingXP };
+}
+
+export function getQuestXPDistribution(quests, dailyXP) {
+  const totalWeight = quests.reduce((total, quest) => total + quest.xp, 0);
+  if (totalWeight <= 0 || dailyXP <= 0) {
+    return quests.map((quest) => ({ id: quest.id, xp: 0 }));
+  }
+
+  let accumulatedWeight = 0;
+  return quests.map((quest) => {
+    const startXP = Math.floor((dailyXP * accumulatedWeight) / totalWeight);
+    accumulatedWeight += quest.xp;
+    const endXP = Math.floor((dailyXP * accumulatedWeight) / totalWeight);
+    return { id: quest.id, xp: endXP - startXP };
+  });
 }
 
 export function getLevelTitle(level) {

@@ -1,7 +1,9 @@
 import React, { useState } from "react"
 import AddNewQuestOverlay from "./AddNewQuestOverlay";
-function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
-    const [addNewQuest, setAddNewQuest] = useState(false);
+import { getGoalTarget, getLocalDateKey, getQuestXPDistribution } from "../utils/helperFunctions.js";
+function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest, onEditQuest }) {
+    const [isQuestEditorOpen, setIsQuestEditorOpen] = useState(false);
+    const [questToEdit, setQuestToEdit] = useState(null);
     const [category, setCategory] = useState("All");
     const [searchItem, setSearchItem] = useState("");
     const normalizedSearch = searchItem.trim().toLowerCase();
@@ -10,10 +12,25 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
         const matchesSearch = quest.title.toLowerCase().includes(normalizedSearch);
         return matchesCategory && matchesSearch;
     });
+    const today = getLocalDateKey();
+    const dailyXP = getGoalTarget(initialState.goals, initialState.profile.xp).dailyXP;
+    const questRewards = new Map(getQuestXPDistribution(initialState.quests, dailyXP).map((reward) => [reward.id, reward.xp]));
 
-    function addNewReq(quest) {
-        AddQuest(quest)
-        setAddNewQuest(false)
+    function openAddQuest() {
+        setQuestToEdit(null);
+        setIsQuestEditorOpen(true);
+    }
+
+    function openEditQuest(quest) {
+        setQuestToEdit(quest);
+        setIsQuestEditorOpen(true);
+    }
+
+    function saveQuest(quest) {
+        if (questToEdit) onEditQuest(quest);
+        else AddQuest(quest);
+        setIsQuestEditorOpen(false);
+        setQuestToEdit(null);
     }
     return (
         <>
@@ -23,11 +40,11 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
                         <h1>Quests</h1>
                         <p>Turn your real-world goals into XP.</p>
                     </div>
-                    <button className="btn btn-primary" onClick={() => { setAddNewQuest(true) }}>＋ Add Quest</button>
+                    <button className="btn btn-primary" onClick={openAddQuest}>＋ Add Quest</button>
                 </div>
                 <div className="toolbar">
                     <input className="input" placeholder="Search quests..." value={searchItem} onChange={(event) => setSearchItem(event.target.value)}/>
-                    <select className="select" value={category} onChange={(event) => setCategory(event.target.value)}>
+                    <select className="select" aria-label="Filter quests by category" value={category} onChange={(event) => setCategory(event.target.value)}>
                         <option>All</option>
                         <option>Health</option>
                         <option>Learning</option>
@@ -51,8 +68,11 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
                                         {quest.category}
                                     </div>
                                 </div>
-                                <span className="quest-xp">+ {quest.xp} XP</span>
-                                <button className="delete-button" aria-label={`Delete ${quest.title}`} onClick={() => onDeleteQuest(quest.id)}>×</button>
+                                <span className="quest-xp">+ {quest.completedOn === today ? quest.dailyXPReward : questRewards.get(quest.id)} XP</span>
+                                <div className="quest-actions">
+                                    <button className="edit-button" type="button" aria-label={`Edit ${quest.title}`} onClick={() => openEditQuest(quest)}>✎</button>
+                                    <button className="delete-button" type="button" aria-label={`Delete ${quest.title}`} onClick={() => onDeleteQuest(quest.id)}>×</button>
+                                </div>
                             </div>
 
                         </div>
@@ -61,8 +81,14 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
                 </div>
             </section>
             {
-                addNewQuest && (
-                    <AddNewQuestOverlay onClose={() => { setAddNewQuest(false) }} onAddQuest={quest => addNewReq(quest)} quests={initialState.quests} />
+                isQuestEditorOpen && (
+                    <AddNewQuestOverlay
+                        onClose={() => setIsQuestEditorOpen(false)}
+                        onAddQuest={saveQuest}
+                        onEditQuest={saveQuest}
+                        dailyXP={dailyXP}
+                        quests={initialState.quests}
+                        questToEdit={questToEdit} />
                 )}
         </>
     )

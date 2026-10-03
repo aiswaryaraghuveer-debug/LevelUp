@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="portal" x1="76" y1="101" x2="437" y2="424" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4A28FF"/>
+      <stop offset=".48" stop-color="#B24DFF"/>
+      <stop offset="1" stop-color="#513BFF"/>
+    </linearGradient>
+    <linearGradient id="crest" x1="153" y1="95" x2="365" y2="422" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".44" stop-color="#E9DBFF"/>
+      <stop offset="1" stop-color="#997AFF"/>
+    </linearGradient>
+    <linearGradient id="orbit" x1="83" y1="355" x2="426" y2="241" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#642BFF"/>
+      <stop offset=".52" stop-color="#E6B8FF"/>
+      <stop offset="1" stop-color="#7D37FF"/>
+    </linearGradient>
+    <filter id="glow" x="24" y="12" width="464" height="488" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <g opacity=".42" filter="url(#glow)">
+    <circle cx="256" cy="256" r="185" stroke="url(#portal)" stroke-width="13"/>
+    <path fill="url(#crest)" fill-rule="evenodd" d="M256 98 399 412H113L256 98ZM256 221 212 310H300L256 221Z"/>
+    <ellipse cx="256" cy="326" rx="198" ry="38" transform="rotate(-17 256 326)" stroke="url(#orbit)" stroke-width="24"/>
+  </g>
+  <circle cx="256" cy="256" r="185" stroke="url(#portal)" stroke-width="9"/>
+  <path fill="url(#crest)" fill-rule="evenodd" d="M256 98 399 412H113L256 98ZM256 221 212 310H300L256 221Z"/>
+  <path d="M185 350H327L311 316H201L185 350Z" fill="url(#crest)"/>
+  <ellipse cx="256" cy="326" rx="198" ry="38" transform="rotate(-17 256 326)" stroke="url(#orbit)" stroke-width="19"/>
+  <path d="M444 224 483 211 465 246 444 224Z" fill="#DDB7FF"/>
+  <path d="M256 20 266 54 300 64 266 74 256 108 246 74 212 64 246 54 256 20Z" fill="url(#orbit)"/>
+  <path d="M256 424 263 448 287 455 263 462 256 486 249 462 225 455 249 448 256 424Z" fill="url(#portal)"/>
+</svg>

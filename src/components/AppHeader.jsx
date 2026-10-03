@@ -14,7 +14,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel })
             <div>
                 <div className="greeting">
                     <h1>
-                        <span className="sun">☀ </span>
+                        {/* <span className="sun">☀ </span> */}
                         {greeting}
                         <span className="heart"> ♥</span>
                     </h1>

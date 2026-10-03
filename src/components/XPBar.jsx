@@ -1,12 +1,11 @@
 import React from "react"
-import { calculateLevel, getLevelTitle, MAX_LEVEL, MAX_XP, XP_PER_LEVEL } from "../utils/helperFunctions"
+import { getLevelProgress, getLevelTitle, MAX_LEVEL, MAX_XP } from "../utils/helperFunctions"
 
 function XPBar({initialState}){
     const xp = Math.min(MAX_XP, initialState.profile.xp);
-    const Level = calculateLevel(xp);
-    const xpInLevel = xp === MAX_XP ? XP_PER_LEVEL : xp % XP_PER_LEVEL;
-    const percentage = { width: `${Math.floor((xpInLevel / XP_PER_LEVEL) * 100)}%` };
-    const firstVisibleLevel = Math.min(Level, MAX_LEVEL - 2);
+    const { level, xpInLevel, xpForLevel } = getLevelProgress(xp);
+    const percentage = { width: `${Math.floor((xpInLevel / xpForLevel) * 100)}%` };
+    const firstVisibleLevel = Math.min(level, MAX_LEVEL - 2);
     const visibleLevels = Array.from({ length: 3 }, (_, index) => firstVisibleLevel + index);
 
     return (
@@ -19,15 +18,15 @@ function XPBar({initialState}){
             <div style={percentage}></div>
         </div>
         <div className="level-track" aria-label="Level progression">
-            {visibleLevels.map((level) => (
-                <div key={level} className={`level-step ${level === Level ? "current" : ""}`} aria-current={level === Level ? "step" : undefined}>
-                    <span className="level-step-number">{level}</span>
-                    <small className="level-step-title">{getLevelTitle(level)}</small>
+            {visibleLevels.map((visibleLevel) => (
+                <div key={visibleLevel} className={`level-step ${visibleLevel === level ? "current" : ""}`} aria-current={visibleLevel === level ? "step" : undefined}>
+                    <span className="level-step-number">{visibleLevel}</span>
+                    <small className="level-step-title">{getLevelTitle(visibleLevel)}</small>
                 </div>
             ))}
         </div>
         <div className="level-labels">
-            <span>{Level === MAX_LEVEL ? "MAX LEVEL" : `${xpInLevel} / ${XP_PER_LEVEL} XP to level ${Level + 1}`}</span>
+            <span>{level === MAX_LEVEL ? "MAX LEVEL" : `${xpInLevel} / ${xpForLevel} XP to level ${level + 1}`}</span>
         </div>
     </section>
     );

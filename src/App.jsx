@@ -12,15 +12,27 @@ import {
   getLevelTitle,
   MAX_XP,
   DAILY_QUEST_XP_LIMIT,
+  MIN_GOAL_DURATION_MONTHS,
+  MAX_GOAL_DURATION_MONTHS,
   MIN_DAILY_QUEST_XP,
   MAX_DAILY_QUEST_XP,
   getStreakAfterQuestCompletion,
+  getGoalTarget,
+  getLocalDateKey,
+  getQuestXPDistribution,
 } from "./utils/helperFunctions.js";
 
 const STORAGE_KEY = "levelup-state-v2";
 
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isDateKey(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
 }
 
 function normalizeAppState(value) {
@@ -61,19 +73,54 @@ function normalizeAppState(value) {
   );
   const validWeeklyXP = Array.isArray(value.weeklyXP)
     && value.weeklyXP.every((xp) => Number.isFinite(xp));
+  const today = getLocalDateKey();
+    const lastQuestCompletionDate = isDateKey(value.lastQuestCompletionDate)
+    ? value.lastQuestCompletionDate
+    : null;
+  const quests = value.quests.map((quest) => {
+    const completedOn = isDateKey(quest.completedOn)
+      ? quest.completedOn
+      : quest.completed && isDateKey(lastQuestCompletionDate) ? lastQuestCompletionDate : null;
+    const completedToday = completedOn === today;
+    return {
+      ...quest,
+      completed: completedToday,
+      completedOn: completedToday ? today : null,
+      dailyXPReward: completedToday
+        ? Number.isFinite(quest.dailyXPReward) ? quest.dailyXPReward : quest.xp
+        : 0,
+    };
+  });
+  const storedGoals = isRecord(value.goals)
+    && typeof value.goals.description === "string"
+    && Number.isInteger(value.goals.durationMonths)
+    && value.goals.durationMonths >= MIN_GOAL_DURATION_MONTHS
+    && value.goals.durationMonths <= MAX_GOAL_DURATION_MONTHS
+    ? value.goals
+    : initialState.goals;
+  const validStartDate = isDateKey(storedGoals.startedOn);
+  const goals = {
+    ...initialState.goals,
+    ...storedGoals,
+    startedOn: validStartDate
+      ? storedGoals.startedOn
+      : storedGoals.description.trim() ? today : null,
+    startingXP: Number.isFinite(storedGoals.startingXP)
+      ? Math.min(MAX_XP, Math.max(0, storedGoals.startingXP))
+      : profile.xp,
+  };
 
   return {
     ...initialState,
     ...value,
     profile,
-    quests: value.quests,
+    quests,
     habits: validHabits ? value.habits : initialState.habits,
     focusSessions: Number.isFinite(value.focusSessions) ? value.focusSessions : initialState.focusSessions,
     focusMinutes: Number.isFinite(value.focusMinutes) ? value.focusMinutes : initialState.focusMinutes,
     weeklyXP: validWeeklyXP ? value.weeklyXP : initialState.weeklyXP,
-    lastQuestCompletionDate: typeof value.lastQuestCompletionDate === "string"
-      ? value.lastQuestCompletionDate
-      : null,
+    lastQuestCompletionDate,
+    goals,
     settings: { ...initialState.settings, ...settings },
   };
 }
@@ -100,22 +147,68 @@ function App() {
     }
   }, [appState]);
 
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const today = getLocalDateKey();
+      setAppState((previous) => {
+        let hasStaleCompletions = false;
+        const quests = previous.quests.map((quest) => {
+          if (!quest.completed || quest.completedOn === today) return quest;
+          hasStaleCompletions = true;
+          return { ...quest, completed: false, completedOn: null, dailyXPReward: 0 };
+        });
+        return hasStaleCompletions ? { ...previous, quests } : previous;
+      });
+    }, 60000);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
   function toggleQuest(questId) {
     setAppState((previous) => {
-      const selectedQuest = previous.quests.find((quest) => quest.id === questId);
+      const today = getLocalDateKey();
+      const todaysQuests = previous.quests.map((quest) => {
+        if (!quest.completed || quest.completedOn === today) return quest;
+        return { ...quest, completed: false, completedOn: null, dailyXPReward: 0 };
+      });
+      const selectedQuest = todaysQuests.find((quest) => quest.id === questId);
       if (!selectedQuest) return previous;
 
       const completed = !selectedQuest.completed;
-      const xp = Math.min(MAX_XP, Math.max(0, previous.profile.xp + (completed ? selectedQuest.xp : -selectedQuest.xp)));
+      const goals = previous.goals.startedOn
+        ? previous.goals
+        : { ...previous.goals, startedOn: today, startingXP: previous.profile.xp };
+      const goalTarget = getGoalTarget(goals, previous.profile.xp);
+      const rewardDistribution = getQuestXPDistribution(todaysQuests, goalTarget.dailyXP);
+      const dailyXPEarned = todaysQuests.reduce((total, quest) =>
+        total + (quest.completed ? quest.dailyXPReward : 0), 0);
+      const remainingDailyXP = Math.max(0, goalTarget.dailyXP - dailyXPEarned);
+      const pendingQuestsAfterToggle = todaysQuests.filter((quest) =>
+        !quest.completed && quest.id !== questId
+      ).length;
+      const distributedReward = rewardDistribution.find((reward) => reward.id === questId)?.xp || 0;
+      const completionReward = pendingQuestsAfterToggle === 0
+        ? remainingDailyXP
+        : Math.min(distributedReward, remainingDailyXP);
+      const xpDelta = completed ? completionReward : -selectedQuest.dailyXPReward;
+      const xp = Math.min(MAX_XP, Math.max(0, previous.profile.xp + xpDelta));
       const streakProgress = completed
         ? getStreakAfterQuestCompletion(previous.profile.streak, previous.lastQuestCompletionDate)
         : { streak: previous.profile.streak, lastCompletedDate: previous.lastQuestCompletionDate };
       return {
         ...previous,
+        goals,
         profile: { ...previous.profile, xp, title: getLevelTitle(calculateLevel(xp)), streak: streakProgress.streak },
         lastQuestCompletionDate: streakProgress.lastCompletedDate,
-        quests: previous.quests.map((quest) =>
-          quest.id === questId ? { ...quest, completed } : quest
+        quests: todaysQuests.map((quest) =>
+          quest.id === questId
+            ? {
+              ...quest,
+              completed,
+              completedOn: completed ? today : null,
+              dailyXPReward: completed ? completionReward : 0,
+            }
+            : quest
         ),
       };
     });
@@ -130,7 +223,31 @@ function App() {
         || totalDailyQuestXP + quest.xp > DAILY_QUEST_XP_LIMIT
       ) return previous;
 
-      return { ...previous, quests: [...previous.quests, quest] };
+      return {
+        ...previous,
+        quests: [...previous.quests, { ...quest, completed: false, completedOn: null, dailyXPReward: 0 }],
+      };
+    });
+  }
+  function editQuest(editedQuest) {
+    setAppState((previous) => {
+      const existingQuest = previous.quests.find((quest) => quest.id === editedQuest.id);
+      if (!existingQuest) return previous;
+
+      const otherQuestXP = previous.quests
+        .filter((quest) => quest.id !== editedQuest.id)
+        .reduce((total, quest) => total + quest.xp, 0);
+      if (
+        !Number.isInteger(editedQuest.xp)
+        || editedQuest.xp < MIN_DAILY_QUEST_XP
+        || editedQuest.xp > MAX_DAILY_QUEST_XP
+        || otherQuestXP + editedQuest.xp > DAILY_QUEST_XP_LIMIT
+      ) return previous;
+
+      return {
+        ...previous,
+        quests: previous.quests.map((quest) => quest.id === editedQuest.id ? editedQuest : quest),
+      };
     });
   }
   function deleteQuest(questId) {
@@ -186,6 +303,8 @@ function App() {
       workbook.creator = "Arise";
 
       const profileSheet = workbook.addWorksheet("Profile");
+      const goalTarget = getGoalTarget(appState.goals, appState.profile.xp);
+      const questRewards = new Map(getQuestXPDistribution(appState.quests, goalTarget.dailyXP).map((reward) => [reward.id, reward.xp]));
       profileSheet.columns = [
         { header: "Field", key: "field", width: 24 },
         { header: "Value", key: "value", width: 30 },
@@ -197,7 +316,13 @@ function App() {
         { field: "XP", value: appState.profile.xp },
         { field: "Coins", value: appState.profile.coins },
         { field: "Streak", value: appState.profile.streak },
-        { field: "Daily Quest XP", value: appState.quests.reduce((total, quest) => total + quest.xp, 0) },
+        { field: "Quest XP Weights", value: appState.quests.reduce((total, quest) => total + quest.xp, 0) },
+        { field: "Goal", value: appState.goals.description },
+        { field: "Goal duration (months)", value: goalTarget.months },
+        { field: "Goal duration (days)", value: goalTarget.days },
+        { field: "Goal XP target", value: goalTarget.xp },
+        { field: "Goal level target", value: goalTarget.level },
+        { field: "Today's goal XP", value: goalTarget.dailyXP },
       ]);
 
       const questSheet = workbook.addWorksheet("Quests");
@@ -205,10 +330,15 @@ function App() {
         { header: "ID", key: "id", width: 12 },
         { header: "Quest", key: "title", width: 42 },
         { header: "Category", key: "category", width: 18 },
-        { header: "XP", key: "xp", width: 10 },
+        { header: "XP weight", key: "xp", width: 12 },
+        { header: "Today's XP", key: "todayXP", width: 12 },
         { header: "Completed", key: "completed", width: 14 },
       ];
-      questSheet.addRows(appState.quests.map((quest) => ({ ...quest, completed: quest.completed ? "Yes" : "No" })));
+      questSheet.addRows(appState.quests.map((quest) => ({
+        ...quest,
+        todayXP: quest.completed ? quest.dailyXPReward : questRewards.get(quest.id) || 0,
+        completed: quest.completed ? "Yes" : "No",
+      })));
 
       const habitSheet = workbook.addWorksheet("Habits");
       habitSheet.columns = [
@@ -260,6 +390,20 @@ function App() {
       }
     }));
   }
+  function changeGoals(goals) {
+    setAppState((previous) => {
+      const startsNewPlan = (goals.durationMonths !== undefined && goals.durationMonths !== previous.goals.durationMonths)
+        || (goals.description?.trim() && !previous.goals.description.trim() && !previous.goals.startedOn);
+      return {
+        ...previous,
+        goals: {
+          ...previous.goals,
+          ...goals,
+          ...(startsNewPlan ? { startedOn: getLocalDateKey(), startingXP: previous.profile.xp } : {}),
+        },
+      };
+    });
+  }
   return (
     <div className="app" data-theme={appState.settings.theme || "rift"}>
         <SideBar navItems={navItems} />
@@ -274,9 +418,9 @@ function App() {
             <p className="data-transfer-status" role="status">{dataTransferMessage}</p>
           )}
           <Routes>
-            <Route index element={<HomePage initialState={appState}  onToggleQuest={toggleQuest} AddQuest={AddQuest}/>}/>
-            <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} />} />
-            <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+            <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
+            <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
+            <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
           </Routes>
         </div>
     </div>
