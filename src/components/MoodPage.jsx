@@ -5,7 +5,7 @@ const moods=[{value:"great",label:"Great",icon:"😄"},{value:"good",label:"Good
 function MoodPage({ initialState, onChange }) {
   const today=new Date().toISOString().slice(0,10);
   const [date,setDate]=useState(today),[mood,setMood]=useState("good"),[note,setNote]=useState("");
-  const [formOpen,setFormOpen]=useState(false),[logsOpen,setLogsOpen]=useState(true),[openDates,setOpenDates]=useState(new Set());
+  const [formOpen,setFormOpen]=useState(false),[logsOpen,setLogsOpen]=useState(true),[openDates,setOpenDates]=useState(null);
   const [editingId,setEditingId]=useState(null),[deleteId,setDeleteId]=useState(null);
   const groupedEntries=useMemo(()=>[...(initialState.settings.moodEntries||[])].sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||b.id).localeCompare(String(a.createdAt||a.id))).reduce((g,e)=>{(g[e.date]??=[]).push(e);return g},{}),[initialState.settings.moodEntries]);
 
