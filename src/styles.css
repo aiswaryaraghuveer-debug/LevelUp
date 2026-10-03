@@ -2901,3 +2901,24 @@ a {
 .budget-caption { margin: 9px 0 0; color: var(--text-soft); font-size: 12px; }
 .budget-over { color: var(--danger, #d64545); }
 @media (max-width: 520px) { .expense-budget-head { align-items: flex-start; flex-direction: column; } }
+
+.tracker-date-heading {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+}
+.tracker-date-heading > span:last-child { color: var(--text-soft); font-size: 12px; font-weight: 500; }
+.date-chevron { display: inline-block; width: 20px; font-size: 18px; }
+.tracker-date-group.collapsed { gap: 0; }
+.tracker-date-group.collapsed .tracker-date-heading { border-radius: var(--radius-md); }
+.journal-important { border-color: var(--pink); box-shadow: 0 0 0 1px var(--pink-light); }
+.tracker-item-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.important-active { border-color: var(--pink); }
+.journal-important-toggle { display: flex; align-items: center; gap: 8px; margin: -2px 0 14px; color: var(--text-soft); cursor: pointer; }
+.journal-important-toggle input { accent-color: var(--pink); }
