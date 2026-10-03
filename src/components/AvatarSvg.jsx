@@ -17,8 +17,8 @@ function AvatarSvg({ value="", size=40, className="" }) {
   const d = designs[key];
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 64 64" role="img" aria-label={key}>
-      <defs><linearGradient id={`avatar-${key}`} x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor={d.bg}/><stop offset="1" stopColor={d.accent}/></linearGradient></defs>
-      <circle cx="32" cy="32" r="29" fill={`url(#avatar-${key})`} />
+      <circle cx="32" cy="32" r="29" fill={d.bg} />
+      <circle cx="32" cy="32" r="25" fill={d.accent} opacity=".32" />
       <circle cx="32" cy="27" r="12" fill="rgba(255,255,255,.92)" />
       <path d="M14 54c3-12 10-18 18-18s15 6 18 18" fill="rgba(255,255,255,.88)" />
       <text x="32" y="31" textAnchor="middle" fontSize="14" fontWeight="700" fill={d.bg}>{d.glyph}</text>
