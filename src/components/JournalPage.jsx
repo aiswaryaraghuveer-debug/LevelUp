@@ -6,6 +6,8 @@ function JournalPage({ initialState, onChange }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [important, setImportant] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(true);
   const [openDates, setOpenDates] = useState(() => new Set([today]));
 
   const groupedEntries = useMemo(() => {
@@ -62,16 +64,24 @@ function JournalPage({ initialState, onChange }) {
   return (
     <section className="page tracker-page">
       <div className="page-heading"><div><h1>Daily Journal</h1><p>Capture what happened, what you learned, and what matters today.</p></div></div>
-      <div className="tracker-grid">
-        <form className="card tracker-form" onSubmit={saveEntry}>
-          <h2>New entry</h2>
-          <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Title</span><input className="input" placeholder="How was your day?" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Journal</span><textarea className="input tracker-textarea" rows="9" placeholder="Write freely..." value={content} onChange={(e) => setContent(e.target.value)} /></label>
-          <label className="journal-important-toggle"><input type="checkbox" checked={important} onChange={(e) => setImportant(e.target.checked)} /><span>★ Mark as important</span></label>
-          <button className="btn btn-primary" type="submit">Save entry</button>
-        </form>
-        <div className="card tracker-list"><h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
+      <div className="tracker-grid tracker-layout">
+        <div className="card tracker-form tracker-collapsible">
+          <button type="button" className="tracker-card-header" onClick={() => setFormOpen((value) => !value)} aria-expanded={formOpen}>
+            <h2>New entry</h2><span className="tracker-card-icon">{formOpen ? "−" : "+"}</span>
+          </button>
+          {formOpen && <form className="tracker-form-body" onSubmit={saveEntry}>
+            <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+            <label className="form-group"><span className="form-label">Title</span><input className="input" placeholder="How was your day?" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
+            <label className="form-group"><span className="form-label">Journal</span><textarea className="input tracker-textarea" rows="9" placeholder="Write freely..." value={content} onChange={(e) => setContent(e.target.value)} /></label>
+            <label className="journal-important-toggle"><input type="checkbox" checked={important} onChange={(e) => setImportant(e.target.checked)} /><span>★ Mark as important</span></label>
+            <button className="btn btn-primary" type="submit">Save entry</button>
+          </form>}
+        </div>
+        <div className="card tracker-list tracker-collapsible">
+          <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
+            <h2>Entries</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
+          </button>
+          {logsOpen && <h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
           const isOpen = openDates.has(date);
           const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
           return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
