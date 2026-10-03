@@ -10,6 +10,7 @@ function ExpensePage({ initialState, onChange }) {
   const [description, setDescription] = useState("");
   const [income, setIncome] = useState(String(initialState.settings.expenseIncome || ""));
   const [goal, setGoal] = useState(String(initialState.settings.expenseGoal || ""));
+  const [openDates, setOpenDates] = useState(() => new Set());
   const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
   const groupedEntries = useMemo(() => {
     return entries.reduce((groups, entry) => {
@@ -27,6 +28,15 @@ function ExpensePage({ initialState, onChange }) {
   const remaining = monthlyIncome - total;
   const goalRemaining = spendingGoal - total;
   const goalProgress = spendingGoal > 0 ? Math.min(100, (total / spendingGoal) * 100) : 0;
+
+  function toggleDate(date) {
+    setOpenDates((previous) => {
+      const next = new Set(previous);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  }
 
   function saveBudget(event) {
     event.preventDefault();
