@@ -91,11 +91,18 @@ function ExpensePage({ initialState, onChange }) {
           <button className="btn btn-primary" type="submit">Add expense</button>
         </form>
         </div>
-        <div className="card tracker-list"><h2>Expenses</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date) => (
-          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
-            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
-          ))}</div>
-        ))}</div>
+        <div className="card tracker-list"><h2>Expenses</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date, index) => {
+          const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
+            </button>
+            {isOpen && groupedEntries[date].map((entry) => (
+              <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
+            ))}
+          </div>;
+        })}</div>
       </div>
     </section>
   );
