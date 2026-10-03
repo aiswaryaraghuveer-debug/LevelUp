@@ -421,6 +421,7 @@ function AuthenticatedApp({ account, onLogout }) {
         goals,
         profile: { ...previous.profile, xp, title: getLevelTitle(calculateLevel(xp)), streak: streakProgress.streak },
         lastQuestCompletionDate: streakProgress.lastCompletedDate,
+        activityHistory,
         quests: todaysQuests.map((quest) =>
           quest.id === questId
             ? {
