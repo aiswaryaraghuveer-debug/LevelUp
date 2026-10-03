@@ -559,7 +559,13 @@ function AuthenticatedApp({ account, onLogout }) {
   async function importData(file) {
     try {
       const parsed = JSON.parse(await file.text());
-      const importedState = normalizeAppState(parsed?.state && typeof parsed.state === "object" ? parsed.state : parsed);
+      const importedState = normalizeAppState(
+        parsed?.state && typeof parsed.state === "object"
+          ? parsed.state
+          : parsed?.appState && typeof parsed.appState === "object"
+            ? parsed.appState
+            : parsed
+      );
       setAppState(importedState);
       setDataTransferMessage("Data imported successfully.");
     } catch {
@@ -571,10 +577,10 @@ function AuthenticatedApp({ account, onLogout }) {
     const fileUrl = URL.createObjectURL(file);
     const downloadLink = document.createElement("a");
     downloadLink.href = fileUrl;
-    downloadLink.download = "arise-data.json";
+    downloadLink.download = "levelup-backup.json";
     downloadLink.click();
     URL.revokeObjectURL(fileUrl);
-    setDataTransferMessage("Data exported as arise-data.json.");
+    setDataTransferMessage("Complete backup exported as levelup-backup.json.");
   }
   async function exportExcel() {
     try {
