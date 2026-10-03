@@ -185,6 +185,8 @@ function normalizeAppState(value) {
       journalEntries: Array.isArray(settings.journalEntries) ? settings.journalEntries : [],
       moodEntries: Array.isArray(settings.moodEntries) ? settings.moodEntries : [],
       expenses: Array.isArray(settings.expenses) ? settings.expenses : [],
+      expenseIncome: Number.isFinite(Number(settings.expenseIncome)) ? Number(settings.expenseIncome) : Number(initialState.settings.expenseIncome || 0),
+      expenseGoal: Number.isFinite(Number(settings.expenseGoal)) ? Number(settings.expenseGoal) : Number(initialState.settings.expenseGoal || 0),
       calorieEntries: Array.isArray(settings.calorieEntries) ? settings.calorieEntries : [],
     },
   };
