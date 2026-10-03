@@ -6,6 +6,8 @@ function CaloriePage({ initialState, onChange }) {
   const [meal, setMeal] = useState("Breakfast");
   const [food, setFood] = useState("");
   const [calories, setCalories] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(true);
   const [openDates, setOpenDates] = useState(() => new Set());
   const entries = useMemo(() => [...(initialState.settings.calorieEntries || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.calorieEntries]);
   const groupedEntries = useMemo(() => {
@@ -43,16 +45,24 @@ function CaloriePage({ initialState, onChange }) {
     <section className="page tracker-page">
       <div className="page-heading"><div><h1>Calorie Tracker</h1><p>Log meals and keep an eye on your daily intake.</p></div></div>
       <div className="tracker-summary"><div className="card summary-card"><span>Today's calories</span><strong>{total} kcal</strong></div><div className="card summary-card"><span>Entries</span><strong>{entries.length}</strong></div></div>
-      <div className="tracker-grid">
-        <form className="card tracker-form" onSubmit={saveCalories}>
-          <h2>Add food</h2>
-          <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Meal</span><select className="select" value={meal} onChange={(e) => setMeal(e.target.value)}><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
-          <label className="form-group"><span className="form-label">Food</span><input className="input" placeholder="Food or drink" value={food} onChange={(e) => setFood(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Calories (kcal)</span><input className="input" type="number" min="1" step="1" placeholder="e.g. 350" value={calories} onChange={(e) => setCalories(e.target.value)} /></label>
-          <button className="btn btn-primary" type="submit">Add food</button>
-        </form>
-        <div className="card tracker-list"><h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
+      <div className="tracker-grid tracker-layout">
+        <div className="card tracker-form tracker-collapsible">
+          <button type="button" className="tracker-card-header" onClick={() => setFormOpen((value) => !value)} aria-expanded={formOpen}>
+            <h2>Add food</h2><span className="tracker-card-icon">{formOpen ? "−" : "+"}</span>
+          </button>
+          {formOpen && <form className="tracker-form-body" onSubmit={saveCalories}>
+            <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+            <label className="form-group"><span className="form-label">Meal</span><select className="select" value={meal} onChange={(e) => setMeal(e.target.value)}><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
+            <label className="form-group"><span className="form-label">Food</span><input className="input" placeholder="Food or drink" value={food} onChange={(e) => setFood(e.target.value)} /></label>
+            <label className="form-group"><span className="form-label">Calories (kcal)</span><input className="input" type="number" min="1" step="1" placeholder="e.g. 350" value={calories} onChange={(e) => setCalories(e.target.value)} /></label>
+            <button className="btn btn-primary" type="submit">Add food</button>
+          </form>}
+        </div>
+        <div className="card tracker-list tracker-collapsible">
+          <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
+            <h2>Food log</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
+          </button>
+          {logsOpen && <h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
           const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
           return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
             <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
