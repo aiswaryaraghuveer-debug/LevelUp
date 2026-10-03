@@ -79,10 +79,10 @@ function AuthScreen({ onSignIn, onSignUp }) {
           <button type="button" role="tab" aria-selected={mode === "signup"} onClick={() => switchMode("signup")}>Sign up</button>
         </div>
 
-        <form className="auth-form" onSubmit={submitForm}>
+        <form className={`auth-form${mode === "signup" ? " auth-form-signup" : ""}`} onSubmit={submitForm}>
           <label className="form-group">
             <span className="form-label">Username</span>
-            <input className="input" name="username" autoComplete="username" autoCapitalize="none" maxLength="32" required value={form.username} onChange={updateField} placeholder="Choose a username" />
+            <input className="input" name="username" autoComplete="username" autoCapitalize="none" maxLength="32" required value={form.username} onChange={updateField} placeholder={mode === "login" ? "Type your username" : "Choose a username"} />
           </label>
           <label className="form-group">
             <span className="form-label">Password</span>
@@ -103,11 +103,11 @@ function AuthScreen({ onSignIn, onSignUp }) {
                   </select>
                 </label>
               </div>
-              <label className="form-group">
+              <label className="form-group auth-goal-group">
                 <span className="form-label">What’s your main goal?</span>
                 <textarea className="input auth-goal-input" name="goals" rows="2" maxLength="240" value={form.goals} onChange={updateField} placeholder="A goal you want to work toward" />
               </label>
-              <label className="form-group">
+              <label className="form-group auth-duration-group">
                 <span className="form-label">Goal duration (months)</span>
                 <input className="input" name="goalDurationMonths" type="number" min={MIN_GOAL_DURATION_MONTHS} max={MAX_GOAL_DURATION_MONTHS} step="1" required value={form.goalDurationMonths} onChange={updateField} />
               </label>
