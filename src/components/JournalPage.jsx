@@ -6,7 +6,18 @@ function JournalPage({ initialState, onChange }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const entries = useMemo(() => [...(initialState.settings.journalEntries || [])].sort((a, b) => b.date.localeCompare(a.date)), [initialState.settings.journalEntries]);
+  const groupedEntries = useMemo(() => {
+    const sorted = [...(initialState.settings.journalEntries || [])].sort((a, b) => {
+      const dateOrder = b.date.localeCompare(a.date);
+      if (dateOrder !== 0) return dateOrder;
+      return String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""));
+    });
+    return sorted.reduce((groups, entry) => {
+      if (!groups[entry.date]) groups[entry.date] = [];
+      groups[entry.date].push(entry);
+      return groups;
+    }, {});
+  }, [initialState.settings.journalEntries]);
 
   function saveEntry(event) {
     event.preventDefault();
@@ -38,8 +49,10 @@ function JournalPage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Journal</span><textarea className="input tracker-textarea" rows="9" placeholder="Write freely..." value={content} onChange={(e) => setContent(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Save entry</button>
         </form>
-        <div className="card tracker-list"><h2>Entries</h2>{entries.length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : entries.map((entry) => (
-          <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.title}</strong><span>{entry.date}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div><p>{entry.content}</p></article>
+        <div className="card tracker-list"><h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => (
+          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
+            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div><p>{entry.content}</p></article>
+          ))}</div>
         ))}</div>
       </div>
     </section>
