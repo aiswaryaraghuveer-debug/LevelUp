@@ -38,6 +38,7 @@ export const initialState = {
     compact: false,
     theme: "rift",
     features: {
+      analytics: true,
       journal: false,
       mood: false,
       expenses: false,
@@ -92,7 +93,7 @@ export const achievements = [
 export const navItems = [
   { label: "Dashboard", path: "/", icon: "⌂" },
   { label: "Quests", path: "/quests", icon: "◎" },
-  { label: "Analytics", path: "/analytics", icon: "▥" },
+  { label: "Analytics", path: "/analytics", icon: "▥", featureKey: "analytics" },
   { label: "Daily Journal", path: "/journal", icon: "✎", featureKey: "journal" },
   { label: "Mood Tracker", path: "/mood", icon: "☻", featureKey: "mood" },
   { label: "Expense Tracker", path: "/expenses", icon: "₹", featureKey: "expenses" },
