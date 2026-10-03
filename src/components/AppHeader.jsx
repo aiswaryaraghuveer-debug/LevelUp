@@ -3,12 +3,13 @@ import { Link } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
 import { themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
-function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel }) {
+function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout }) {
 
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const greeting = getGreeting(initialState);
     const level = calculateLevel(initialState.profile.xp);
     const currentTheme = initialState.settings.theme || "rift";
+    const selectedAvatar = initialState.profile.avatar || "";
     return (
         <header className="header">
             <div>
@@ -16,7 +17,9 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel })
                     <h1>
                         {/* <span className="sun">☀ </span> */}
                         {greeting}
-                        <span className="heart"> ♥</span>
+                        <span className="heart" aria-hidden="true">
+                            {selectedAvatar ? ` ${selectedAvatar}` : " ♥"}
+                        </span>
                     </h1>
                 </div>
                 <p>
@@ -66,8 +69,9 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel })
                     )}
                 </div>
                 <Link className="avatar" to="/settings#profile" aria-label="Open profile settings" title="Profile">
-                    {initialState.profile.name.charAt(0)}
+                    {selectedAvatar || initialState.profile.name.charAt(0) || "A"}
                 </Link>
+                <button className="icon-button" type="button" aria-label="Sign out" title="Sign out" onClick={onLogout}>↪</button>
             </div>
 
 

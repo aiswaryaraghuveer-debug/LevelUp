@@ -1,6 +1,8 @@
 export const initialState = {
   profile: {
     name: "",
+    age: 0,
+    avatar: "",
     title: "Beginner",
     xp: 0,
     coins: 0,
@@ -44,6 +46,17 @@ export const themeOptions = [
   { value: "sunset", label: "Sunset", color: "#d7654c" },
   { value: "midnight", label: "Midnight", color: "#5d9dff" },
   { value: "galaxy", label: "Galaxy", color: "#bd79ff" },
+];
+
+export const avatarOptions = [
+  { value: "⚔️", label: "Blade" },
+  { value: "🛡️", label: "Guardian" },
+  { value: "🏹", label: "Ranger" },
+  { value: "🔮", label: "Oracle" },
+  { value: "✨", label: "Spark" },
+  { value: "🌙", label: "Lunar" },
+  { value: "⚡", label: "Storm" },
+  { value: "🧭", label: "Scout" },
 ];
 
 export const achievements = [

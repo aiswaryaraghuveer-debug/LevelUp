@@ -1,16 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import DataTransferControls from "./DataTransferControls.jsx";
 import { calculateLevel, getGoalTarget, getLevelTitle, MAX_XP, MIN_GOAL_DURATION_MONTHS, MAX_GOAL_DURATION_MONTHS } from "../utils/helperFunctions.js";
-import { themeOptions } from "../../data/data.js";
+import { avatarOptions, themeOptions } from "../../data/data.js";
 
-function SettingsPage({ initialState, ChangeUsername, onChangeGoals, onReset, onToggleNotifications, onChangeTheme, onImportData, onExportData, onExportExcel }) {
-    const [age, setAge] = useState(0);
+function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvatar, onChangeGoals, onReset, onToggleNotifications, onChangeTheme, onImportData, onExportData, onExportExcel }) {
     const currentTitle = getLevelTitle(calculateLevel(initialState.profile.xp));
     const goalTarget = getGoalTarget(initialState.goals, initialState.profile.xp);
 
     function resetSettings() {
         onReset();
-        setAge(0);
     }
 
     function updateDuration(event) {
@@ -38,11 +36,18 @@ function SettingsPage({ initialState, ChangeUsername, onChangeGoals, onReset, on
                         </label>
                         <label className="form-group">
                             <span className="form-label">Age</span>
-                            <input className="input" min="0" max="120" placeholder="Your age" type="number" value={age} onChange={(event) => setAge(event.target.value)} />
+                            <input className="input" min="0" max="120" placeholder="Your age" type="number" value={initialState.profile.age || ""} onChange={(event) => onChangeAge(Number(event.target.value))} />
                         </label>
                         <label className="form-group">
                             <span className="form-label">Adventurer title</span>
                             <input className="input" value={currentTitle} readOnly />
+                        </label>
+                        <label className="form-group settings-avatar">
+                            <span className="form-label">Profile avatar</span>
+                            <select className="select" aria-label="Profile avatar" value={initialState.profile.avatar || ""} onChange={(event) => onChangeAvatar(event.target.value)}>
+                                <option value="">Default (heart)</option>
+                                {avatarOptions.map((avatar) => <option key={avatar.value} value={avatar.value}>{avatar.value} {avatar.label}</option>)}
+                            </select>
                         </label>
                         <label className="form-group settings-goals">
                             <span className="form-label">Goals</span>

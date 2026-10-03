@@ -18,6 +18,10 @@ npm run build
 npm run preview
 ```
 
+## Deploy on GitHub Pages
+
+Push to `main` to build and deploy with the GitHub Actions workflow. In the repository settings, set Pages' build and deployment source to **GitHub Actions**. The workflow supports project pages and `username.github.io` repositories, and keeps app routes working on refresh.
+
 ## Suggested learning rule
 
 Do not read the solution first. Build each day's feature from the assignment in `ASSIGNMENTS.md`, then use this project as your reference when stuck.

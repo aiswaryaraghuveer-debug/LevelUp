@@ -1,11 +1,12 @@
 import React ,{useEffect, useState} from "react";
 import AppHeader from "./components/AppHeader";
+import AuthScreen from "./components/AuthScreen.jsx";
 import SideBar from "./components/SideBar";
 import HomePage from "./components/HomePage";
 import QuestPage from "./components/QuestPage"
 import SettingsPage from "./components/SettingsPage.jsx";
 import "./styles.css";
-import { navItems,initialState } from "../data/data.js";
+import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
 import {
   calculateLevel,
@@ -22,7 +23,52 @@ import {
   getQuestXPDistribution,
 } from "./utils/helperFunctions.js";
 
-const STORAGE_KEY = "levelup-state-v2";
+const LEGACY_STORAGE_KEY = "levelup-state-v2";
+const ACCOUNTS_STORAGE_KEY = "levelup-accounts-v1";
+const SESSION_STORAGE_KEY = "levelup-session-v1";
+const PASSWORD_ITERATIONS = 210000;
+
+function normalizeUsername(username) {
+  return username.trim().toLowerCase();
+}
+
+function getStateStorageKey(username) {
+  return `${LEGACY_STORAGE_KEY}:${encodeURIComponent(username)}`;
+}
+
+function bytesToHex(bytes) {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashPassword(password, salt) {
+  if (!window.crypto?.subtle) throw new Error("Secure password storage is unavailable in this browser.");
+  const key = await window.crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
+  const bits = await window.crypto.subtle.deriveBits({ name: "PBKDF2", hash: "SHA-256", salt, iterations: PASSWORD_ITERATIONS }, key, 256);
+  return bytesToHex(new Uint8Array(bits));
+}
+
+function readAccounts() {
+  const savedAccounts = window.localStorage.getItem(ACCOUNTS_STORAGE_KEY);
+  if (!savedAccounts) return [];
+  const accounts = JSON.parse(savedAccounts);
+  if (!Array.isArray(accounts) || !accounts.every((account) =>
+    isRecord(account)
+    && typeof account.username === "string"
+    && typeof account.key === "string"
+    && typeof account.passwordSalt === "string"
+    && typeof account.passwordHash === "string"
+  )) throw new Error("Saved accounts could not be read. Your existing data has not been changed.");
+  return accounts;
+}
+
+function loadSessionAccount() {
+  try {
+    const accountKey = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    return accountKey ? readAccounts().find((account) => account.key === accountKey) || null : null;
+  } catch {
+    return null;
+  }
+}
 
 function isRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -41,10 +87,14 @@ function normalizeAppState(value) {
   }
 
   const profile = { ...initialState.profile, ...value.profile };
+  profile.age = Number.isInteger(profile.age) && profile.age >= 0 && profile.age <= 120 ? profile.age : 0;
+  profile.avatar = avatarOptions.some((avatar) => avatar.value === profile.avatar) ? profile.avatar : "";
   profile.xp = Math.min(MAX_XP, Math.max(0, profile.xp));
   profile.title = getLevelTitle(calculateLevel(profile.xp));
   const validProfile = typeof profile.name === "string"
+    && typeof profile.avatar === "string"
     && typeof profile.title === "string"
+    && Number.isInteger(profile.age)
     && Number.isFinite(profile.xp)
     && Number.isFinite(profile.coins)
     && Number.isFinite(profile.streak);
@@ -121,13 +171,17 @@ function normalizeAppState(value) {
     weeklyXP: validWeeklyXP ? value.weeklyXP : initialState.weeklyXP,
     lastQuestCompletionDate,
     goals,
-    settings: { ...initialState.settings, ...settings },
+    settings: {
+      ...initialState.settings,
+      ...settings,
+      theme: themeOptions.some((theme) => theme.value === settings.theme) ? settings.theme : initialState.settings.theme,
+    },
   };
 }
 
-function loadAppState() {
+function loadAppState(storageKey) {
   try {
-    const savedState = window.localStorage.getItem(STORAGE_KEY);
+    const savedState = window.localStorage.getItem(storageKey);
     if (!savedState) return initialState;
     return normalizeAppState(JSON.parse(savedState));
   } catch {
@@ -136,16 +190,94 @@ function loadAppState() {
 }
 
 function App() {
-  const [appState, setAppState] = useState(loadAppState);
+  const [account, setAccount] = useState(loadSessionAccount);
+
+  async function signIn({ username, password }) {
+    const key = normalizeUsername(username);
+    const existingAccount = readAccounts().find((savedAccount) => savedAccount.key === key);
+    if (!existingAccount) throw new Error("Username or password is incorrect.");
+    const salt = Uint8Array.from(existingAccount.passwordSalt.match(/.{1,2}/g) || [], (byte) => Number.parseInt(byte, 16));
+    const passwordHash = await hashPassword(password, salt);
+    if (passwordHash !== existingAccount.passwordHash) throw new Error("Username or password is incorrect.");
+    window.localStorage.setItem(SESSION_STORAGE_KEY, existingAccount.key);
+    setAccount(existingAccount);
+  }
+
+  async function signUp({ username, password, age, goals, goalDurationMonths, avatar, theme }) {
+    const cleanUsername = username.trim();
+    const key = normalizeUsername(cleanUsername);
+    if (!/^[a-zA-Z0-9._-]{3,32}$/.test(cleanUsername)) {
+      throw new Error("Username must be 3–32 characters using letters, numbers, dots, dashes, or underscores.");
+    }
+    const accounts = readAccounts();
+    if (accounts.some((savedAccount) => savedAccount.key === key)) throw new Error("That username already exists. Sign in instead.");
+
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+    const newAccount = {
+      username: cleanUsername,
+      key,
+      passwordSalt: bytesToHex(salt),
+      passwordHash: await hashPassword(password, salt),
+    };
+    let startingState = initialState;
+    if (accounts.length === 0) {
+      try {
+        const legacySave = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacySave) startingState = normalizeAppState(JSON.parse(legacySave));
+      } catch {
+        startingState = initialState;
+      }
+    }
+    const signupGoals = goals.trim();
+    const goalDescription = signupGoals || startingState.goals.description;
+    const goalPlanChanged = goalDescription !== startingState.goals.description
+      || goalDurationMonths !== startingState.goals.durationMonths;
+    const newState = normalizeAppState({
+      ...startingState,
+      profile: { ...startingState.profile, name: cleanUsername, age, avatar },
+      goals: {
+        ...startingState.goals,
+        description: goalDescription,
+        durationMonths: goalDurationMonths,
+        ...(goalPlanChanged && goalDescription.trim()
+          ? { startedOn: getLocalDateKey(), startingXP: startingState.profile.xp }
+          : {}),
+      },
+      settings: { ...startingState.settings, theme },
+    });
+
+    window.localStorage.setItem(getStateStorageKey(key), JSON.stringify(newState));
+    window.localStorage.setItem(ACCOUNTS_STORAGE_KEY, JSON.stringify([...accounts, newAccount]));
+    window.localStorage.setItem(SESSION_STORAGE_KEY, key);
+    setAccount(newAccount);
+  }
+
+  function signOut() {
+    try {
+      window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    } finally {
+      setAccount(null);
+    }
+  }
+
+  if (!account) return <AuthScreen onSignIn={signIn} onSignUp={signUp} />;
+  return <AuthenticatedApp account={account} onLogout={signOut} />;
+}
+
+function AuthenticatedApp({ account, onLogout }) {
+  const storageKey = getStateStorageKey(account.key);
+  const [appState, setAppState] = useState(() => loadAppState(storageKey));
   const [dataTransferMessage, setDataTransferMessage] = useState("");
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      const previousSave = window.localStorage.getItem(storageKey);
+      if (previousSave) window.localStorage.setItem(`${storageKey}:backup`, previousSave);
+      window.localStorage.setItem(storageKey, JSON.stringify(appState));
     } catch {
-      // Storage can be unavailable or full; keep the app usable for this session.
+      setDataTransferMessage("Progress could not be saved. Export a backup before leaving this browser.");
     }
-  }, [appState]);
+  }, [appState, storageKey]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -311,6 +443,8 @@ function App() {
       ];
       profileSheet.addRows([
         { field: "Name", value: appState.profile.name },
+        { field: "Age", value: appState.profile.age || "Not set" },
+        { field: "Avatar", value: appState.profile.avatar || "Default" },
         { field: "Title", value: appState.profile.title },
         { field: "Level", value: calculateLevel(appState.profile.xp) },
         { field: "XP", value: appState.profile.xp },
@@ -390,6 +524,24 @@ function App() {
       }
     }));
   }
+  function changeAvatar(avatar) {
+    setAppState((previous) => ({
+      ...previous,
+      profile: {
+        ...previous.profile,
+        avatar: avatarOptions.some((option) => option.value === avatar) ? avatar : "",
+      },
+    }));
+  }
+  function changeAge(age) {
+    setAppState((previous) => ({
+      ...previous,
+      profile: {
+        ...previous.profile,
+        age: Number.isInteger(age) && age >= 0 && age <= 120 ? age : previous.profile.age,
+      },
+    }));
+  }
   function changeGoals(goals) {
     setAppState((previous) => {
       const startsNewPlan = (goals.durationMonths !== undefined && goals.durationMonths !== previous.goals.durationMonths)
@@ -413,6 +565,7 @@ function App() {
             onChangeTheme={changeTheme}
             onExportData={exportData}
             onExportExcel={exportExcel}
+            onLogout={onLogout}
           />
           {dataTransferMessage && (
             <p className="data-transfer-status" role="status">{dataTransferMessage}</p>
@@ -420,7 +573,7 @@ function App() {
           <Routes>
             <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
             <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-            <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+            <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
           </Routes>
         </div>
     </div>
