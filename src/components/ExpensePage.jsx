@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import ConfirmOverlay from "./ConfirmOverlay.jsx";
 
 const categories = ["Food", "Transport", "Shopping", "Bills", "Health", "Education", "Other"];
 
@@ -14,6 +15,7 @@ function ExpensePage({ initialState, onChange }) {
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(true);
   const [openDates, setOpenDates] = useState(() => new Set());
+  const [resetOpen, setResetOpen] = useState(false);
   const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
   const groupedEntries = useMemo(() => {
     return entries.reduce((groups, entry) => {
@@ -60,12 +62,18 @@ function ExpensePage({ initialState, onChange }) {
     setAmount("");
     setDescription("");
   }
+  function resetExpenses() {
+    onChange({ expenses: [], expenseIncome: 0, expenseGoal: 0 });
+    setIncome("");
+    setGoal("");
+    setResetOpen(false);
+  }
   function removeExpense(id) {
     onChange({ expenses: (initialState.settings.expenses || []).filter((entry) => entry.id !== id) });
   }
   return (
     <section className="page tracker-page">
-      <div className="page-heading"><div><h1>Expense Tracker</h1><p>Keep a simple record of your spending.</p></div></div>
+      <div className="page-heading"><div><h1>Expense Tracker</h1><p>Keep a simple record of your spending.</p></div><button className="btn btn-secondary" type="button" onClick={() => setResetOpen(true)}>Reset tracker</button></div>
       <div className="tracker-summary">
         <div className="card summary-card"><span>Income</span><strong>₹{monthlyIncome.toFixed(2)}</strong></div>
         <div className="card summary-card"><span>Spent</span><strong>₹{total.toFixed(2)}</strong></div>
@@ -121,6 +129,7 @@ function ExpensePage({ initialState, onChange }) {
         </div>
       </div>
     </section>
+    {resetOpen && <ConfirmOverlay title="Reset expense tracker?" message="All expenses, income and spending goals will be deleted." confirmLabel="Reset expenses" danger onClose={() => setResetOpen(false)} onConfirm={resetExpenses} />}
   );
 }
 export default ExpensePage;
