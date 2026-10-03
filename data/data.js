@@ -71,6 +71,14 @@ export const avatarOptions = [
   { value: "🌙", label: "Lunar" },
   { value: "⚡", label: "Storm" },
   { value: "🧭", label: "Scout" },
+  { value: "phoenix", label: "Phoenix" },
+  { value: "monk", label: "Monk" },
+  { value: "void", label: "Void Walker" },
+  { value: "druid", label: "Druid" },
+  { value: "alchemist", label: "Alchemist" },
+  { value: "ronin", label: "Ronin" },
+  { value: "sentinel", label: "Sentinel" },
+  { value: "mystic", label: "Mystic" },
 ];
 
 export const achievements = [
