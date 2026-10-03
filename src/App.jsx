@@ -180,7 +180,7 @@ function normalizeAppState(value) {
       ...initialState.settings,
       ...settings,
       theme: themeOptions.some((theme) => theme.value === settings.theme) ? settings.theme : initialState.settings.theme,
-      notificationTime: typeof settings.notificationTime === "string" && /^([01]\\d|2[0-3]):[0-5]\\d$/.test(settings.notificationTime) ? settings.notificationTime : initialState.settings.notificationTime,
+      notificationTime: typeof settings.notificationTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(settings.notificationTime) ? settings.notificationTime : initialState.settings.notificationTime,
       features: { ...initialState.settings.features, ...(isRecord(settings.features) ? settings.features : {}) },
       journalEntries: Array.isArray(settings.journalEntries) ? settings.journalEntries : [],
       moodEntries: Array.isArray(settings.moodEntries) ? settings.moodEntries : [],
