@@ -24,7 +24,8 @@ export const initialState = {
   weeklyXP: [80, 140, 60, 180, 120, 210, 160],
   settings: {
     notifications: true,
-    compact: false
+    compact: false,
+    theme: "rose"
   }
 };
 
@@ -39,9 +40,9 @@ export const achievements = [
 export const navItems = [
   { label: "Dashboard", path: "/", icon: "⌂" },
   { label: "Quests", path: "/quests", icon: "◎" },
-  { label: "Habits", path: "/habits", icon: "♧" },
-  { label: "Focus", path: "/focus", icon: "◷" },
-  { label: "Analytics", path: "/analytics", icon: "▥" },
-  { label: "Achievements", path: "/achievements", icon: "♜" },
+  // { label: "Habits", path: "/habits", icon: "♧" },
+  // { label: "Focus", path: "/focus", icon: "◷" },
+  // { label: "Analytics", path: "/analytics", icon: "▥" },
+  // { label: "Achievements", path: "/achievements", icon: "♜" },
   { label: "Settings", path: "/settings", icon: "⚙" }
 ];

@@ -17,9 +17,9 @@ function HomePage({initialState,onToggleQuest,AddQuest}) {
    <div className="top-grid">
      <LevelCard initialState={initialState}/>
      <StatCard  mainDig={questDataLenght} mainText={"Total Tasks"} subText={completedQuests} icon={"☷"}/>
-     <StatCard  mainDig={habit} mainText={"Habits Done"} subText={"This week"} icon={"♧"} />
+     {/* <StatCard  mainDig={habit} mainText={"Habits Done"} subText={"This week"} icon={"♧"} />
      <StatCard  mainDig={hour} mainText={"Focus Time"} subText={"This week"} icon={"◷"}/>
-     <StatCard  mainDig={totalCoins} mainText={"Coins"} subText={completedQuests} icon={"★"} />
+     <StatCard  mainDig={totalCoins} mainText={"Coins"} subText={completedQuests} icon={"★"} /> */}
      <StreakCard streakDays={streakDays}/>
     </div>
     <div className="content-grid">
