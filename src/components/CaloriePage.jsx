@@ -62,20 +62,24 @@ function CaloriePage({ initialState, onChange }) {
           <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
             <h2>Food log</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
           </button>
-          {logsOpen && <h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
-          const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
-          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
-            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
-              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
-              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
-            </button>
-            {isOpen && groupedEntries[date].map((entry) => (
-              <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"} · {entry.meal}</span></div><button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
-            ))}
-          </div>;
-        })}</div>
+          {logsOpen && (
+            <>
+              {orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
+                const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+                return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+                  <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+                    <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+                    <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
+                  </button>
+                  {isOpen && groupedEntries[date].map((entry) => (
+                    <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"} · {entry.meal}</span></div><button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
+                  ))}
+                </div>;
+              })}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );
 }
-export default CaloriePage;
