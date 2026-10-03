@@ -1,9 +1,9 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import BrandLogo from "./BrandLogo.jsx";
-function SideBar({ navItems }) {
+function SideBar({ navItems, isOpen, onClose }) {
     return (
-        <div className="sidebar">
+        <aside className={`sidebar${isOpen ? " open" : ""}`} id="primary-navigation" aria-label="Primary navigation">
             <nav >
                 <div className="brand">
                     <BrandLogo className="brand-icon" />
@@ -12,7 +12,7 @@ function SideBar({ navItems }) {
                 </div>
                 <div className="nav">
                     {navItems.map((item) => (
-                         <NavLink to={item.path} className="nav-item" key={item.path}>
+                         <NavLink to={item.path} className="nav-item" key={item.path} onClick={onClose}>
                            
                                 <div className="nav-icon">{item.icon}</div>
                                 <span>{item.label}</span>
@@ -27,7 +27,7 @@ function SideBar({ navItems }) {
                     <span>♥</span>
                 </div>
             </nav>
-        </div>
+        </aside>
     );
 }
 export default SideBar;

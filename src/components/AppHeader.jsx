@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
 import { themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
-function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout }) {
+function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout, onToggleMenu, isMenuOpen }) {
 
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const greeting = getGreeting(initialState);
@@ -13,6 +13,9 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
     return (
         <header className="header">
             <div>
+                <button className="icon-button mobile-menu-button" type="button" aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={isMenuOpen} aria-controls="primary-navigation" onClick={onToggleMenu}>
+                    <span aria-hidden="true">☰</span>
+                </button>
                 <div className="greeting">
                     <h1>
                         {/* <span className="sun">☀ </span> */}

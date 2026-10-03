@@ -59,7 +59,7 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest, onEdi
                     ) : quests.map((quest) => (
                         <div key={quest.id}>
                             <div className={`quest ${quest.completed ? 'completed' : ''}`}>
-                                <button className="quest-checkbox" aria-label={`Toggle ${quest.title}`} aria-pressed={quest.completed} onClick={() => onToggleQuest(quest.id)}>✔</button>
+                                <button className="quest-checkbox" aria-label={`Toggle ${quest.title}`} aria-pressed={quest.completed} onClick={() => onToggleQuest(quest.id)}>{quest.completed && <span aria-hidden="true">✓</span>}</button>
                                 <div className="quest-info">
                                     <div className="quest-title">
                                         {quest.title}

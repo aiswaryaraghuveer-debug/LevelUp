@@ -266,8 +266,10 @@ function App() {
 
 function AuthenticatedApp({ account, onLogout }) {
   const storageKey = getStateStorageKey(account.key);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [appState, setAppState] = useState(() => loadAppState(storageKey));
   const [dataTransferMessage, setDataTransferMessage] = useState("");
+  const [questCelebrationId, setQuestCelebrationId] = useState(0);
 
   useEffect(() => {
     try {
@@ -296,33 +298,55 @@ function AuthenticatedApp({ account, onLogout }) {
     return () => window.clearInterval(interval);
   }, []);
 
-  function toggleQuest(questId) {
-    setAppState((previous) => {
-      const today = getLocalDateKey();
-      const todaysQuests = previous.quests.map((quest) => {
-        if (!quest.completed || quest.completedOn === today) return quest;
-        return { ...quest, completed: false, completedOn: null, dailyXPReward: 0 };
-      });
-      const selectedQuest = todaysQuests.find((quest) => quest.id === questId);
-      if (!selectedQuest) return previous;
+  useEffect(() => {
+    if (!isSidebarOpen) return undefined;
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setIsSidebarOpen(false);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isSidebarOpen]);
 
-      const completed = !selectedQuest.completed;
+  function toggleQuest(questId) {
+    const today = getLocalDateKey();
+    const selectedQuest = appState.quests.find((quest) => quest.id === questId);
+    const completesFinalQuest = selectedQuest
+      && (!selectedQuest.completed || selectedQuest.completedOn !== today)
+      && appState.quests.every((quest) =>
+        quest.id === questId || (quest.completed && quest.completedOn === today)
+      );
+
+    if (completesFinalQuest) setQuestCelebrationId((previous) => previous + 1);
+
+    setAppState((previous) => {
+      const currentDate = getLocalDateKey();
+      let selectedTodayQuest = null;
+      let dailyXPEarned = 0;
+      let pendingQuestCount = 0;
+      const todaysQuests = previous.quests.map((quest) => {
+        const todayQuest = quest.completed && quest.completedOn !== currentDate
+          ? { ...quest, completed: false, completedOn: null, dailyXPReward: 0 }
+          : quest;
+        if (todayQuest.id === questId) selectedTodayQuest = todayQuest;
+        if (todayQuest.completed) dailyXPEarned += todayQuest.dailyXPReward;
+        else if (todayQuest.id !== questId) pendingQuestCount += 1;
+        return todayQuest;
+      });
+      if (!selectedTodayQuest) return previous;
+
+      const completed = !selectedTodayQuest.completed;
       const goals = previous.goals.startedOn
         ? previous.goals
-        : { ...previous.goals, startedOn: today, startingXP: previous.profile.xp };
+        : { ...previous.goals, startedOn: currentDate, startingXP: previous.profile.xp };
       const goalTarget = getGoalTarget(goals, previous.profile.xp);
-      const rewardDistribution = getQuestXPDistribution(todaysQuests, goalTarget.dailyXP);
-      const dailyXPEarned = todaysQuests.reduce((total, quest) =>
-        total + (quest.completed ? quest.dailyXPReward : 0), 0);
       const remainingDailyXP = Math.max(0, goalTarget.dailyXP - dailyXPEarned);
-      const pendingQuestsAfterToggle = todaysQuests.filter((quest) =>
-        !quest.completed && quest.id !== questId
-      ).length;
-      const distributedReward = rewardDistribution.find((reward) => reward.id === questId)?.xp || 0;
-      const completionReward = pendingQuestsAfterToggle === 0
+      const distributedReward = completed
+        ? getQuestXPDistribution(todaysQuests, goalTarget.dailyXP).find((reward) => reward.id === questId)?.xp || 0
+        : 0;
+      const completionReward = pendingQuestCount === 0
         ? remainingDailyXP
         : Math.min(distributedReward, remainingDailyXP);
-      const xpDelta = completed ? completionReward : -selectedQuest.dailyXPReward;
+      const xpDelta = completed ? completionReward : -selectedTodayQuest.dailyXPReward;
       const xp = Math.min(MAX_XP, Math.max(0, previous.profile.xp + xpDelta));
       const streakProgress = completed
         ? getStreakAfterQuestCompletion(previous.profile.streak, previous.lastQuestCompletionDate)
@@ -337,7 +361,7 @@ function AuthenticatedApp({ account, onLogout }) {
             ? {
               ...quest,
               completed,
-              completedOn: completed ? today : null,
+              completedOn: completed ? currentDate : null,
               dailyXPReward: completed ? completionReward : 0,
             }
             : quest
@@ -558,10 +582,26 @@ function AuthenticatedApp({ account, onLogout }) {
   }
   return (
     <div className="app" data-theme={appState.settings.theme || "rift"}>
-        <SideBar navItems={navItems} />
+        {questCelebrationId > 0 && (
+          <div
+            key={questCelebrationId}
+            className="quest-day-celebration"
+            role="status"
+            aria-live="polite"
+            onAnimationEnd={(event) => {
+              if (event.target === event.currentTarget) setQuestCelebrationId(0);
+            }}
+          >
+            <span className="quest-day-celebration-message">All quests complete!</span>
+          </div>
+        )}
+        <SideBar navItems={navItems} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        {isSidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Close navigation menu" onClick={() => setIsSidebarOpen(false)} />}
         <div className="main">
           <AppHeader
             initialState={appState}
+            onToggleMenu={() => setIsSidebarOpen((open) => !open)}
+            isMenuOpen={isSidebarOpen}
             onChangeTheme={changeTheme}
             onExportData={exportData}
             onExportExcel={exportExcel}
