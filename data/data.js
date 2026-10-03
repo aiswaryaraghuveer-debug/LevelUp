@@ -45,6 +45,8 @@ export const initialState = {
     journalEntries: [],
     moodEntries: [],
     expenses: [],
+    expenseIncome: 0,
+    expenseGoal: 0,
     calorieEntries: [],
   }
 };
