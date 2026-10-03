@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
 import { navItems, themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
+import AvatarSvg from "./AvatarSvg.jsx";
 function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout, onToggleMenu, isMenuOpen }) {
 
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
@@ -142,7 +143,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
                     )}
                 </div>
                 <Link className="avatar" to="/settings#profile" aria-label="Open profile settings" title="Profile">
-                    {selectedAvatar || initialState.profile.name.charAt(0) || "A"}
+                    <AvatarSvg value={selectedAvatar} size={39} />
                 </Link>
                 <button className="icon-button" type="button" aria-label="Sign out" title="Sign out" onClick={onLogout}>↪</button>
             </div>
