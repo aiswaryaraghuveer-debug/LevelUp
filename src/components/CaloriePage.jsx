@@ -52,11 +52,18 @@ function CaloriePage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Calories (kcal)</span><input className="input" type="number" min="1" step="1" placeholder="e.g. 350" value={calories} onChange={(e) => setCalories(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Add food</button>
         </form>
-        <div className="card tracker-list"><h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date) => (
-          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
-            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"} · {entry.meal}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
-          ))}</div>
-        ))}</div>
+        <div className="card tracker-list"><h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date, index) => {
+          const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
+            </button>
+            {isOpen && groupedEntries[date].map((entry) => (
+              <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"} · {entry.meal}</span></div><button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
+            ))}
+          </div>;
+        })}</div>
       </div>
     </section>
   );
