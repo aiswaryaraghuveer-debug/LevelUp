@@ -79,22 +79,25 @@ function ExpensePage({ initialState, onChange }) {
       </div>
       <div className="tracker-grid tracker-layout">
         <div>
-          <form className="card tracker-form" onSubmit={saveBudget}>
-            <h2>Income & goal</h2>
-            <label className="form-group"><span className="form-label">Monthly income</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={income} onChange={(e) => setIncome(e.target.value)} /></label>
-            <label className="form-group"><span className="form-label">Monthly spending goal</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={goal} onChange={(e) => setGoal(e.target.value)} /></label>
-            <button className="btn btn-secondary" type="submit">Save budget</button>
-          </form>
-          <form className="card tracker-form" onSubmit={saveExpense}>
-          <h2>Add expense</h2>
-          <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Amount</span><input className="input" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} /></label>
-          <label className="form-group"><span className="form-label">Category</span><select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
-          <label className="form-group"><span className="form-label">Description</span><input className="input" placeholder="What was it for?" value={description} onChange={(e) => setDescription(e.target.value)} /></label>
-          <button className="btn btn-primary" type="submit">Add expense</button>
-        </form>
-        </div>
-        <div className="card tracker-list"><h2>Expenses</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date, index) => {
+          <div className="card tracker-form tracker-collapsible">
+            <button type="button" className="tracker-card-header" onClick={() => setBudgetOpen((value) => !value)} aria-expanded={budgetOpen}><h2>Income & goal</h2><span className="tracker-card-icon">{budgetOpen ? "−" : "+"}</span></button>
+            {budgetOpen && <form className="tracker-form-body" onSubmit={saveBudget}>
+              <label className="form-group"><span className="form-label">Monthly income</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={income} onChange={(e) => setIncome(e.target.value)} /></label>
+              <label className="form-group"><span className="form-label">Monthly spending goal</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={goal} onChange={(e) => setGoal(e.target.value)} /></label>
+              <button className="btn btn-secondary" type="submit">Save budget</button>
+            </form>}
+          </div>
+          <div className="card tracker-form tracker-collapsible">
+            <button type="button" className="tracker-card-header" onClick={() => setFormOpen((value) => !value)} aria-expanded={formOpen}><h2>Add expense</h2><span className="tracker-card-icon">{formOpen ? "−" : "+"}</span></button>
+            {formOpen && <form className="tracker-form-body" onSubmit={saveExpense}>
+              <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+              <label className="form-group"><span className="form-label">Amount</span><input className="input" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} /></label>
+              <label className="form-group"><span className="form-label">Category</span><select className="select" value={category} onChange={(e) => setCategory(e.target.value)}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
+              <label className="form-group"><span className="form-label">Description</span><input className="input" placeholder="What was it for?" value={description} onChange={(e) => setDescription(e.target.value)} /></label>
+              <button className="btn btn-primary" type="submit">Add expense</button>
+            </form>}
+          </div>
+        <div className="card tracker-list tracker-collapsible"><button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}><h2>Expenses</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span></button>{logsOpen &&{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date, index) => {
           const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
           return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
             <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
@@ -105,7 +108,7 @@ function ExpensePage({ initialState, onChange }) {
               <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
             ))}
           </div>;
-        })}</div>
+        })}</div>}
       </div>
     </section>
   );
