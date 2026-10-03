@@ -67,6 +67,7 @@ function ExpensePage({ initialState, onChange }) {
     onChange({ expenses: (initialState.settings.expenses || []).filter((entry) => entry.id !== id) });
   }
   return (
+    <>
     <section className="page tracker-page">
       <div className="page-heading"><div><h1>Expense Tracker</h1><p>Keep a simple record of your spending.</p></div><button className="btn btn-secondary" type="button" onClick={() => setResetOpen(true)}>Reset tracker</button></div>
       <div className="tracker-summary">
