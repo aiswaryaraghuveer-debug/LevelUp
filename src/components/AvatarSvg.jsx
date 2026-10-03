@@ -20,6 +20,14 @@ const palette = {
   lunar: { bg: "#202b4c", glow: "#b8c8ff", metal: "#e8edff", dark: "#141b31" },
   storm: { bg: "#123d50", glow: "#69e9ff", metal: "#d8fbff", dark: "#0c2733" },
   scout: { bg: "#4a3216", glow: "#ffd36a", metal: "#fff1c2", dark: "#2d1e0d" },
+  phoenix: { bg: "#4b1d28", glow: "#ff8b6a", metal: "#ffe2d5", dark: "#2b1118" },
+  monk: { bg: "#3b3020", glow: "#f6d37a", metal: "#fff0c7", dark: "#211a10" },
+  void: { bg: "#17152f", glow: "#9d8cff", metal: "#ded8ff", dark: "#0c0b1b" },
+  druid: { bg: "#173b2a", glow: "#71e6a4", metal: "#d8ffe8", dark: "#0d251a" },
+  alchemist: { bg: "#24334a", glow: "#67d9d0", metal: "#dcfffa", dark: "#111d2c" },
+  ronin: { bg: "#3d2026", glow: "#ff7b8b", metal: "#ffe0e4", dark: "#241116" },
+  sentinel: { bg: "#25334a", glow: "#8cb9ff", metal: "#e4efff", dark: "#111a29" },
+  mystic: { bg: "#40224f", glow: "#e8a0ff", metal: "#f8e0ff", dark: "#26132f" },
 };
 
 function AvatarSvg({ value = "", size = 40, className = "" }) {
@@ -102,6 +110,14 @@ function AvatarSvg({ value = "", size = 40, className = "" }) {
         <path d="M34 9 25 24h7l-3 12 10-17h-7z" fill={p.glow} />
       </>
     ),
+    phoenix: (<> <path d="M14 55c4-11 10-17 18-17s14 6 18 17" fill={p.metal}/><path d="M18 42c2-15 7-24 14-24s12 9 14 24l-6 8H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><path d="M32 8c-5 8-9 10-13 12 6 1 9 4 13 10 4-6 7-9 13-10-4-2-8-4-13-12z" fill={p.glow}/></>),
+    monk: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c0-15 6-24 14-24s14 9 14 24l-6 7H24z" fill={p.dark}/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><circle cx="32" cy="13" r="7" fill="none" stroke={p.glow} strokeWidth="2"/></>),
+    void: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M17 43c1-18 7-27 15-27s14 9 15 27l-6 7H23z" fill={p.dark} stroke={p.glow} strokeWidth="1.4"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h10" stroke={p.glow} strokeWidth="2"/><path d="M32 8l3 9 8 3-8 3-3 9-3-9-8-3 8-3z" fill={p.glow}/></>),
+    druid: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c2-17 7-25 14-25s12 8 14 25l-6 7H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><path d="M32 8c-5 5-7 10-6 15 3-2 5-3 6-7 2 4 4 5 7 7 1-5-1-10-7-15z" fill={p.glow}/></>),
+    alchemist: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c1-16 7-25 14-25s13 9 14 25l-6 7H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><path d="M27 11h10v7H27zM29 18v7h6v-7" fill="none" stroke={p.glow} strokeWidth="2"/><circle cx="32" cy="29" r="3" fill={p.glow}/></>),
+    ronin: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c1-17 7-26 14-26s13 9 14 26l-6 7H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><path d="M44 12l7 7-20 20" stroke={p.glow} strokeWidth="2"/><path d="M43 12l3 3" stroke={p.metal} strokeWidth="3"/></>),
+    sentinel: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c0-16 6-25 14-25s14 9 14 25l-6 7H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><path d="M32 8v16M24 16h16" stroke={p.glow} strokeWidth="2"/></>),
+    mystic: (<> <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.metal}/><path d="M18 43c1-17 7-26 14-26s13 9 14 26l-6 7H24z" fill={p.dark} stroke={p.glow} strokeWidth="1.2"/><path d="M23 31h18v11H23z" fill={p.bg}/><path d="M27 35h3M34 35h3" stroke={p.glow} strokeWidth="2"/><circle cx="32" cy="13" r="5" fill="none" stroke={p.glow} strokeWidth="2"/><path d="M32 9v8M28 13h8" stroke={p.glow}/></>),
     scout: (
       <>
         <path d="M14 55c3-11 10-17 18-17s15 6 18 17" fill={p.dark} stroke={p.glow} strokeWidth="1" />
