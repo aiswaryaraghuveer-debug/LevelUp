@@ -309,6 +309,13 @@ function AuthenticatedApp({ account, onLogout }) {
   const [questCelebrationId, setQuestCelebrationId] = useState(0);
   const [briefingMode, setBriefingMode] = useState(null);
   useEffect(() => {
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+    if (!themeMeta) return;
+    const computedBackground = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+    if (computedBackground) themeMeta.setAttribute("content", computedBackground);
+  }, [appState.settings.theme]);
+
+  useEffect(() => {
     const hour = new Date().getHours();
     const mode = hour >= 5 && hour < 12 ? "morning" : hour >= 18 ? "night" : null;
     if (!mode) return;
