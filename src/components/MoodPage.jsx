@@ -63,21 +63,25 @@ function MoodPage({ initialState, onChange }) {
           <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
             <h2>Mood history</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
           </button>
-          {logsOpen && <h2>Mood history</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No mood check-ins yet.</p> : Object.keys(groupedEntries).map((date, index) => {
-          const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
-          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
-            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
-              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
-              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
-            </button>
-            {isOpen && groupedEntries[date].map((entry) => {
-              const selected = moods.find((item) => item.value === entry.mood) || moods[2];
-              return <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{selected.icon} {selected.label}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div></div>{entry.note && <p>{entry.note}</p>}</article>;
-            })}
-          </div>;
-        })}</div>
+          {logsOpen && (
+            <>
+              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No mood check-ins yet.</p> : Object.keys(groupedEntries).map((date, index) => {
+                const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+                return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+                  <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+                    <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+                    <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}</span>
+                  </button>
+                  {isOpen && groupedEntries[date].map((entry) => {
+                    const selected = moods.find((item) => item.value === entry.mood) || moods[2];
+                    return <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{selected.icon} {selected.label}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div></div>{entry.note && <p>{entry.note}</p>}</article>;
+                  })}
+                </div>;
+              })}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );
 }
-export default MoodPage;
