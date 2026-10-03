@@ -13,6 +13,7 @@ function MoodPage({ initialState, onChange }) {
   const [date, setDate] = useState(today);
   const [mood, setMood] = useState("good");
   const [note, setNote] = useState("");
+  const [openDates, setOpenDates] = useState(() => new Set());
   const groupedEntries = useMemo(() => {
     const sorted = [...(initialState.settings.moodEntries || [])].sort((a, b) => {
       const dateOrder = b.date.localeCompare(a.date);
@@ -25,6 +26,15 @@ function MoodPage({ initialState, onChange }) {
       return groups;
     }, {});
   }, [initialState.settings.moodEntries]);
+
+  function toggleDate(date) {
+    setOpenDates((previous) => {
+      const next = new Set(previous);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  }
 
   function saveMood(event) {
     event.preventDefault();
