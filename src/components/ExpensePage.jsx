@@ -14,7 +14,7 @@ function ExpensePage({ initialState, onChange }) {
   const [formOpen, setFormOpen] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(true);
-  const [openDates, setOpenDates] = useState(() => new Set());
+  const [openDates, setOpenDates] = useState(null);
   const [resetOpen, setResetOpen] = useState(false);
   const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
   const groupedEntries = useMemo(() => {
@@ -35,12 +35,7 @@ function ExpensePage({ initialState, onChange }) {
   const goalProgress = spendingGoal > 0 ? Math.min(100, (total / spendingGoal) * 100) : 0;
 
   function toggleDate(date) {
-    setOpenDates((previous) => {
-      const next = new Set(previous);
-      if (next.has(date)) next.delete(date);
-      else next.add(date);
-      return next;
-    });
+    setOpenDates((previous) => { const next = new Set(previous || []); if (previous === null) { next.delete(date); next.add("___collapsed_first___"); } else if (next.has("___collapsed_first___") && date === Object.keys(groupedEntries)[0]) { next.delete("___collapsed_first___"); next.add(date); } else if (next.has(date)) next.delete(date); else next.add(date); return next; });
   }
 
   function saveBudget(event) {
@@ -113,7 +108,7 @@ function ExpensePage({ initialState, onChange }) {
           {logsOpen && (
             <>
               {orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date, index) => {
-                const isOpen = openDates.has(date) || (openDates.size === 0 && index === 0);
+                const isOpen = openDates === null ? index === 0 : openDates.has(date);
                 return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
                   <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
                     <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
