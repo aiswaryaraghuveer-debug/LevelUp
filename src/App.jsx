@@ -2,6 +2,7 @@ import React ,{useEffect, useState} from "react";
 import AppHeader from "./components/AppHeader";
 import AuthScreen from "./components/AuthScreen.jsx";
 import SideBar from "./components/SideBar";
+import BrandLogo from "./components/BrandLogo.jsx";
 import HomePage from "./components/HomePage";
 import QuestPage from "./components/QuestPage"
 import SettingsPage from "./components/SettingsPage.jsx";
@@ -607,14 +608,28 @@ function AuthenticatedApp({ account, onLogout }) {
             onExportExcel={exportExcel}
             onLogout={onLogout}
           />
-          {dataTransferMessage && (
-            <p className="data-transfer-status" role="status">{dataTransferMessage}</p>
-          )}
-          <Routes>
-            <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
-            <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-            <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
-          </Routes>
+          <div className="main-content">
+            {dataTransferMessage && (
+              <p className="data-transfer-status" role="status">{dataTransferMessage}</p>
+            )}
+            <Routes>
+              <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
+              <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+            </Routes>
+          </div>
+          <footer className="app-footer">
+            <div className="app-footer-brand">
+              <BrandLogo className="app-footer-icon" />
+              <span>Arise</span>
+            </div>
+            <p className="app-footer-copyright">© {new Date().getFullYear()} Aiswarya Raghuveer. All rights reserved.</p>
+            <div className="app-footer-meta">
+              <span>Released October 3, 2026</span>
+              <span>Version 0.0.1</span>
+              <a href="mailto:aiswaryaraghuveer@gmail.com">aiswaryaraghuveer@gmail.com</a>
+            </div>
+          </footer>
         </div>
     </div>
   );
