@@ -2,7 +2,7 @@ import React,{useState} from "react";
 function AddNewQuestOverlay({ onClose,onAddQuest }) {
     const closeOverlay = onClose;
     const [newQuestTitle,setNewQuestTitle]=useState("");
-     const [newQuestCategory,setNewQuestCategory]=useState("");
+     const [newQuestCategory,setNewQuestCategory]=useState("Learning");
       const [newQuestXp,setNewQuestXp]=useState(0);
       function addQuestToList(event) {
     event.preventDefault();

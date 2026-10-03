@@ -4,9 +4,8 @@ import LevelCard from "./LevelCard";
 import StatCard from "./StatCard.jsx";
 import StreakCard from "./StreakCard.jsx"
 import XPBar from "./XPBar.jsx"
-import {initialState} from "../../data/data.js";
 import {getCompletedTasks,getHour} from "../utils/helperFunctions.js"
-function HomePage() {
+function HomePage({initialState,onToggleQuest,AddQuest}) {
   const questDataLenght=initialState.quests.length
   const completedQuests=getCompletedTasks(initialState.quests).length +" completed"
   const totalCoins=initialState.profile.coins
@@ -24,7 +23,7 @@ function HomePage() {
      <StreakCard streakDays={streakDays}/>
     </div>
     <div className="content-grid">
-      <QuestCard initialState={initialState} />
+      <QuestCard initialState={initialState} onToggleQuest={onToggleQuest} AddQuest={AddQuest}/>
       <XPBar initialState={initialState}/>
     </div>
     </>
