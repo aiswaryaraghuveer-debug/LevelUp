@@ -1,0 +1,48 @@
+import React, { useMemo, useState } from "react";
+
+function JournalPage({ initialState, onChange }) {
+  const today = new Date().toISOString().slice(0, 10);
+  const [date, setDate] = useState(today);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  const entries = useMemo(() => [...(initialState.settings.journalEntries || [])].sort((a, b) => b.date.localeCompare(a.date)), [initialState.settings.journalEntries]);
+
+  function saveEntry(event) {
+    event.preventDefault();
+    if (!content.trim()) return;
+    const entry = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+      date,
+      title: title.trim() || "Daily Journal",
+      content: content.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    onChange({ journalEntries: [entry, ...(initialState.settings.journalEntries || [])] });
+    setTitle("");
+    setContent("");
+  }
+
+  function removeEntry(id) {
+    onChange({ journalEntries: (initialState.settings.journalEntries || []).filter((entry) => entry.id !== id) });
+  }
+
+  return (
+    <section className="page tracker-page">
+      <div className="page-heading"><div><h1>Daily Journal</h1><p>Capture what happened, what you learned, and what matters today.</p></div></div>
+      <div className="tracker-grid">
+        <form className="card tracker-form" onSubmit={saveEntry}>
+          <h2>New entry</h2>
+          <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
+          <label className="form-group"><span className="form-label">Title</span><input className="input" placeholder="How was your day?" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
+          <label className="form-group"><span className="form-label">Journal</span><textarea className="input tracker-textarea" rows="9" placeholder="Write freely..." value={content} onChange={(e) => setContent(e.target.value)} /></label>
+          <button className="btn btn-primary" type="submit">Save entry</button>
+        </form>
+        <div className="card tracker-list"><h2>Entries</h2>{entries.length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : entries.map((entry) => (
+          <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.title}</strong><span>{entry.date}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div><p>{entry.content}</p></article>
+        ))}</div>
+      </div>
+    </section>
+  );
+}
+export default JournalPage;
