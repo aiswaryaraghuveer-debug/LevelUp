@@ -6,14 +6,22 @@ function CaloriePage({ initialState, onChange }) {
   const [meal, setMeal] = useState("Breakfast");
   const [food, setFood] = useState("");
   const [calories, setCalories] = useState("");
-  const entries = useMemo(() => [...(initialState.settings.calorieEntries || [])].sort((a, b) => b.date.localeCompare(a.date)), [initialState.settings.calorieEntries]);
+  const entries = useMemo(() => [...(initialState.settings.calorieEntries || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.calorieEntries]);
+  const groupedEntries = useMemo(() => {
+    return entries.reduce((groups, entry) => {
+      if (!groups[entry.date]) groups[entry.date] = [];
+      groups[entry.date].push(entry);
+      return groups;
+    }, {});
+  }, [entries]);
+  const orderedDates = useMemo(() => Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a)), [groupedEntries]);
   const total = entries.filter((entry) => entry.date === today).reduce((sum, entry) => sum + Number(entry.calories || 0), 0);
 
   function saveCalories(event) {
     event.preventDefault();
     const value = Number(calories);
     if (!food.trim() || !Number.isFinite(value) || value <= 0) return;
-    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, meal, food: food.trim(), calories: value };
+    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, meal, food: food.trim(), calories: value, createdAt: new Date().toISOString() };
     onChange({ calorieEntries: [entry, ...(initialState.settings.calorieEntries || [])] });
     setFood("");
     setCalories("");
@@ -34,8 +42,10 @@ function CaloriePage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Calories (kcal)</span><input className="input" type="number" min="1" step="1" placeholder="e.g. 350" value={calories} onChange={(e) => setCalories(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Add food</button>
         </form>
-        <div className="card tracker-list"><h2>Food log</h2>{entries.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : entries.map((entry) => (
-          <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>{entry.date} · {entry.meal}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
+        <div className="card tracker-list"><h2>Food log</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No foods logged yet.</p> : orderedDates.map((date) => (
+          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
+            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.food} · {entry.calories} kcal</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"} · {entry.meal}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div></article>
+          ))}</div>
         ))}</div>
       </div>
     </section>
