@@ -83,3 +83,4 @@ function CaloriePage({ initialState, onChange }) {
     </section>
   );
 }
+export default CaloriePage;
