@@ -97,6 +97,7 @@ function ExpensePage({ initialState, onChange }) {
               <button className="btn btn-primary" type="submit">Add expense</button>
             </form>}
           </div>
+        </div>
         <div className="card tracker-list tracker-collapsible">
           <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
             <h2>Expenses</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
