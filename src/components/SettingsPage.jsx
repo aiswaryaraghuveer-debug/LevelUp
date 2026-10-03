@@ -26,6 +26,7 @@ function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvata
     }
 
     const trackerLabels = {
+        analytics: ["Analytics", "Productivity analytics will be hidden when disabled."],
         journal: ["Daily Journal", "Journal entries will be deleted and the tracker disabled."],
         mood: ["Mood Tracker", "Mood history will be deleted and the tracker disabled."],
         expenses: ["Expense Tracker", "Expenses, income and budget will be deleted and the tracker disabled."],
