@@ -8,6 +8,8 @@ function ExpensePage({ initialState, onChange }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Food");
   const [description, setDescription] = useState("");
+  const [income, setIncome] = useState(String(initialState.settings.expenseIncome || ""));
+  const [goal, setGoal] = useState(String(initialState.settings.expenseGoal || ""));
   const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
   const groupedEntries = useMemo(() => {
     return entries.reduce((groups, entry) => {
@@ -18,6 +20,21 @@ function ExpensePage({ initialState, onChange }) {
   }, [entries]);
   const orderedDates = useMemo(() => Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a)), [groupedEntries]);
   const total = entries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const monthlyIncome = Number(initialState.settings.expenseIncome || 0);
+  const spendingGoal = Number(initialState.settings.expenseGoal || 0);
+  const remaining = monthlyIncome - total;
+  const goalRemaining = spendingGoal - total;
+  const goalProgress = spendingGoal > 0 ? Math.min(100, (total / spendingGoal) * 100) : 0;
+
+  function saveBudget(event) {
+    event.preventDefault();
+    const nextIncome = Number(income);
+    const nextGoal = Number(goal);
+    onChange({
+      expenseIncome: Number.isFinite(nextIncome) && nextIncome >= 0 ? nextIncome : 0,
+      expenseGoal: Number.isFinite(nextGoal) && nextGoal >= 0 ? nextGoal : 0,
+    });
+  }
 
   function saveExpense(event) {
     event.preventDefault();
@@ -34,9 +51,26 @@ function ExpensePage({ initialState, onChange }) {
   return (
     <section className="page tracker-page">
       <div className="page-heading"><div><h1>Expense Tracker</h1><p>Keep a simple record of your spending.</p></div></div>
-      <div className="tracker-summary"><div className="card summary-card"><span>Total recorded</span><strong>₹{total.toFixed(2)}</strong></div><div className="card summary-card"><span>Entries</span><strong>{entries.length}</strong></div></div>
+      <div className="tracker-summary">
+        <div className="card summary-card"><span>Income</span><strong>₹{monthlyIncome.toFixed(2)}</strong></div>
+        <div className="card summary-card"><span>Spent</span><strong>₹{total.toFixed(2)}</strong></div>
+        <div className="card summary-card"><span>Balance</span><strong className={remaining < 0 ? "budget-over" : ""}>₹{remaining.toFixed(2)}</strong></div>
+        <div className="card summary-card"><span>Entries</span><strong>{entries.length}</strong></div>
+      </div>
+      <div className="card expense-budget-card">
+        <div className="expense-budget-head"><div><h2>Monthly budget</h2><p>Set your income and the maximum you want to spend.</p></div><strong>₹{Math.max(0, goalRemaining).toFixed(2)} left</strong></div>
+        <div className="budget-progress"><span style={{ width: `${goalProgress}%` }} /></div>
+        {spendingGoal > 0 && <p className="budget-caption">₹{total.toFixed(2)} of ₹{spendingGoal.toFixed(2)} spent {goalRemaining < 0 ? "— goal exceeded" : ""}</p>}
+      </div>
       <div className="tracker-grid">
-        <form className="card tracker-form" onSubmit={saveExpense}>
+        <div>
+          <form className="card tracker-form" onSubmit={saveBudget}>
+            <h2>Income & goal</h2>
+            <label className="form-group"><span className="form-label">Monthly income</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={income} onChange={(e) => setIncome(e.target.value)} /></label>
+            <label className="form-group"><span className="form-label">Monthly spending goal</span><input className="input" type="number" min="0" step="0.01" placeholder="0.00" value={goal} onChange={(e) => setGoal(e.target.value)} /></label>
+            <button className="btn btn-secondary" type="submit">Save budget</button>
+          </form>
+          <form className="card tracker-form" onSubmit={saveExpense}>
           <h2>Add expense</h2>
           <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
           <label className="form-group"><span className="form-label">Amount</span><input className="input" type="number" min="0.01" step="0.01" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} /></label>
@@ -44,6 +78,7 @@ function ExpensePage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Description</span><input className="input" placeholder="What was it for?" value={description} onChange={(e) => setDescription(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Add expense</button>
         </form>
+        </div>
         <div className="card tracker-list"><h2>Expenses</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date) => (
           <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
             <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
