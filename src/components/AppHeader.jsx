@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
-import { navItems, themeOptions } from "../../data/data.js";
+import { avatarOptions, navItems, themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
 import AvatarSvg from "./AvatarSvg.jsx";
 function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout, onToggleMenu, isMenuOpen }) {
@@ -24,6 +24,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
     const level = calculateLevel(initialState.profile.xp);
     const currentTheme = initialState.settings.theme || "rift";
     const selectedAvatar = initialState.profile.avatar || "";
+    const selectedAvatarName = avatarOptions.find((avatar) => avatar.value === selectedAvatar)?.label || "Default";
     const availableNavItems = useMemo(() => {
         const features = initialState.settings?.features || {};
         return navItems.filter((item) => !item.featureKey || features[item.featureKey]);
@@ -76,7 +77,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
                         {/* <span className="sun">☀ </span> */}
                         {greeting}
                         <span className="heart" aria-hidden="true">
-                            {selectedAvatar ? ` ${selectedAvatar}` : " ♥"}
+                            {selectedAvatarName !== "Default" ? ` · ${selectedAvatarName}` : ""}
                         </span>
                     </h1>
                 </div>
