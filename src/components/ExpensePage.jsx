@@ -19,7 +19,9 @@ function ExpensePage({ initialState, onChange }) {
     }, {});
   }, [entries]);
   const orderedDates = useMemo(() => Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a)), [groupedEntries]);
-  const total = entries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
+  const currentMonth = today.slice(0, 7);
+  const monthlyEntries = entries.filter((entry) => String(entry.date || "").slice(0, 7) === currentMonth);
+  const total = monthlyEntries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
   const monthlyIncome = Number(initialState.settings.expenseIncome || 0);
   const spendingGoal = Number(initialState.settings.expenseGoal || 0);
   const remaining = monthlyIncome - total;
@@ -55,7 +57,7 @@ function ExpensePage({ initialState, onChange }) {
         <div className="card summary-card"><span>Income</span><strong>₹{monthlyIncome.toFixed(2)}</strong></div>
         <div className="card summary-card"><span>Spent</span><strong>₹{total.toFixed(2)}</strong></div>
         <div className="card summary-card"><span>Balance</span><strong className={remaining < 0 ? "budget-over" : ""}>₹{remaining.toFixed(2)}</strong></div>
-        <div className="card summary-card"><span>Entries</span><strong>{entries.length}</strong></div>
+        <div className="card summary-card"><span>This month</span><strong>{monthlyEntries.length}</strong></div>
       </div>
       <div className="card expense-budget-card">
         <div className="expense-budget-head"><div><h2>Monthly budget</h2><p>Set your income and the maximum you want to spend.</p></div><strong>₹{Math.max(0, goalRemaining).toFixed(2)} left</strong></div>
