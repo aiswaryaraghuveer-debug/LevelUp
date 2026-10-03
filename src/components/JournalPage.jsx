@@ -81,30 +81,34 @@ function JournalPage({ initialState, onChange }) {
           <button type="button" className="tracker-card-header" onClick={() => setLogsOpen((value) => !value)} aria-expanded={logsOpen}>
             <h2>Entries</h2><span className="tracker-card-icon">{logsOpen ? "⌃" : "⌄"}</span>
           </button>
-          {logsOpen && <h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
-          const isOpen = openDates.has(date);
-          const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
-          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
-            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
-              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
-              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}{importantCount ? ` · ★ ${importantCount} important` : ""}</span>
-            </button>
-            {isOpen && groupedEntries[date].map((entry) => (
-              <article className={`tracker-item ${entry.important ? "journal-important" : ""}`} key={entry.id}>
-                <div className="tracker-item-head">
-                  <div><strong>{entry.important ? "★ " : ""}{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div>
-                  <div className="tracker-item-actions">
-                    <button type="button" className={`btn btn-secondary journal-star-button ${entry.important ? "important-active" : ""}`} onClick={() => toggleImportant(entry.id)} aria-label={entry.important ? "Remove important flag" : "Mark as important"} title={entry.important ? "Remove important flag" : "Mark as important"}>{entry.important ? "★" : "☆"}</button>
-                    <button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button>
-                  </div>
-                </div>
-                <p>{entry.content}</p>
-              </article>
-            ))}
-          </div>;
-        })}</div>
+          {logsOpen && (
+            <>
+              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
+                const isOpen = openDates.has(date);
+                const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
+                return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+                  <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+                    <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+                    <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}{importantCount ? ` · ★ ${importantCount} important` : ""}</span>
+                  </button>
+                  {isOpen && groupedEntries[date].map((entry) => (
+                    <article className={`tracker-item ${entry.important ? "journal-important" : ""}`} key={entry.id}>
+                      <div className="tracker-item-head">
+                        <div><strong>{entry.important ? "★ " : ""}{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div>
+                        <div className="tracker-item-actions">
+                          <button type="button" className={`btn btn-secondary journal-star-button ${entry.important ? "important-active" : ""}`} onClick={() => toggleImportant(entry.id)} aria-label={entry.important ? "Remove important flag" : "Mark as important"} title={entry.important ? "Remove important flag" : "Mark as important"}>{entry.important ? "★" : "☆"}</button>
+                          <button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button>
+                        </div>
+                      </div>
+                      <p>{entry.content}</p>
+                    </article>
+                  ))}
+                </div>;
+              })}
+            </>
+          )}
+        </div>
       </div>
     </section>
   );
 }
-export default JournalPage;
