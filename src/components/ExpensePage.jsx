@@ -8,14 +8,22 @@ function ExpensePage({ initialState, onChange }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("Food");
   const [description, setDescription] = useState("");
-  const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => b.date.localeCompare(a.date)), [initialState.settings.expenses]);
+  const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
+  const groupedEntries = useMemo(() => {
+    return entries.reduce((groups, entry) => {
+      if (!groups[entry.date]) groups[entry.date] = [];
+      groups[entry.date].push(entry);
+      return groups;
+    }, {});
+  }, [entries]);
+  const orderedDates = useMemo(() => Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a)), [groupedEntries]);
   const total = entries.reduce((sum, entry) => sum + Number(entry.amount || 0), 0);
 
   function saveExpense(event) {
     event.preventDefault();
     const value = Number(amount);
     if (!Number.isFinite(value) || value <= 0) return;
-    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, amount: value, category, description: description.trim() };
+    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, amount: value, category, description: description.trim(), createdAt: new Date().toISOString() };
     onChange({ expenses: [entry, ...(initialState.settings.expenses || [])] });
     setAmount("");
     setDescription("");
@@ -36,8 +44,10 @@ function ExpensePage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Description</span><input className="input" placeholder="What was it for?" value={description} onChange={(e) => setDescription(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Add expense</button>
         </form>
-        <div className="card tracker-list"><h2>Expenses</h2>{entries.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : entries.map((entry) => (
-          <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>{entry.date}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
+        <div className="card tracker-list"><h2>Expenses</h2>{orderedDates.length === 0 ? <p className="tracker-empty">No expenses recorded yet.</p> : orderedDates.map((date) => (
+          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
+            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>₹{Number(entry.amount).toFixed(2)} · {entry.category}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeExpense(entry.id)}>Delete</button></div>{entry.description && <p>{entry.description}</p>}</article>
+          ))}</div>
         ))}</div>
       </div>
     </section>
