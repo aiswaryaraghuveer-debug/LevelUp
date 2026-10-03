@@ -1,19 +1,19 @@
 import React from "react";
 import AppHeader from "./components/AppHeader";
-import Sidebar from "./components/Sidebar";
+import SideBar from "./components/SideBar";
 import HomePage from "./components/HomePage";
 import "./styles.css";
-import {navItems} from "../data/data.js";
+import { navItems } from "../data/data.js";
 
-function App(){
+function App() {
   return (
     <div>
-       <Sidebar navItems={navItems} />
-      
+      <SideBar navItems={navItems} />
+
       <div className="main">
-       <AppHeader />
+        <AppHeader />
         <HomePage />
-      </div>  
+      </div>
     </div>
   );
 }

@@ -13,6 +13,7 @@ function QuestCard({ initialState }) {
     }
     return (
         <>
+         <section className="card quests-card">
             <div className="section-title">
                 <div>
                     <h2>Today's Quest</h2>
@@ -41,6 +42,7 @@ function QuestCard({ initialState }) {
                 </div>
             ))
             }
+            </section>
              {isAddQuestOpen && (
         <AddNewQuestOverlay
   onClose={() => setIsAddQuestOpen(false)}
