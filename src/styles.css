@@ -2922,3 +2922,5 @@ a {
 .important-active { border-color: var(--pink); }
 .journal-important-toggle { display: flex; align-items: center; gap: 8px; margin: -2px 0 14px; color: var(--text-soft); cursor: pointer; }
 .journal-important-toggle input { accent-color: var(--pink); }
+
+.journal-star-button { min-width: 38px; width: 38px; padding: 7px 8px; font-size: 18px; line-height: 1; }
