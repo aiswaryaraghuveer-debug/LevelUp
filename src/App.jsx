@@ -6,6 +6,10 @@ import BrandLogo from "./components/BrandLogo.jsx";
 import HomePage from "./components/HomePage";
 import QuestPage from "./components/QuestPage"
 import SettingsPage from "./components/SettingsPage.jsx";
+import JournalPage from "./components/JournalPage.jsx";
+import MoodPage from "./components/MoodPage.jsx";
+import ExpensePage from "./components/ExpensePage.jsx";
+import CaloriePage from "./components/CaloriePage.jsx";
 import "./styles.css";
 import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
@@ -176,6 +180,14 @@ function normalizeAppState(value) {
       ...initialState.settings,
       ...settings,
       theme: themeOptions.some((theme) => theme.value === settings.theme) ? settings.theme : initialState.settings.theme,
+      notificationTime: typeof settings.notificationTime === "string" && /^([01]\d|2[0-3]):[0-5]\d$/.test(settings.notificationTime) ? settings.notificationTime : initialState.settings.notificationTime,
+      features: { ...initialState.settings.features, ...(isRecord(settings.features) ? settings.features : {}) },
+      journalEntries: Array.isArray(settings.journalEntries) ? settings.journalEntries : [],
+      moodEntries: Array.isArray(settings.moodEntries) ? settings.moodEntries : [],
+      expenses: Array.isArray(settings.expenses) ? settings.expenses : [],
+      expenseIncome: Number.isFinite(Number(settings.expenseIncome)) ? Number(settings.expenseIncome) : Number(initialState.settings.expenseIncome || 0),
+      expenseGoal: Number.isFinite(Number(settings.expenseGoal)) ? Number(settings.expenseGoal) : Number(initialState.settings.expenseGoal || 0),
+      calorieEntries: Array.isArray(settings.calorieEntries) ? settings.calorieEntries : [],
     },
   };
 }
@@ -271,6 +283,7 @@ function AuthenticatedApp({ account, onLogout }) {
   const [appState, setAppState] = useState(() => loadAppState(storageKey));
   const [dataTransferMessage, setDataTransferMessage] = useState("");
   const [questCelebrationId, setQuestCelebrationId] = useState(0);
+  const enabledNavItems = navItems.filter((item) => !item.featureKey || appState.settings.features?.[item.featureKey]);
 
   useEffect(() => {
     try {
@@ -298,6 +311,31 @@ function AuthenticatedApp({ account, onLogout }) {
 
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!appState.settings.notifications || !("Notification" in window)) return undefined;
+    let timer;
+    async function scheduleNotification() {
+      if (Notification.permission === "default") {
+        try { await Notification.requestPermission(); } catch { return; }
+      }
+      if (Notification.permission !== "granted") return;
+      const [hours, minutes] = (appState.settings.notificationTime || "09:00").split(":").map(Number);
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(hours, minutes, 0, 0);
+      if (next <= now) next.setDate(next.getDate() + 1);
+      timer = window.setTimeout(() => {
+        const features = appState.settings.features || {};
+        const names = [features.journal && "journal", features.mood && "mood", features.expenses && "expense", features.calories && "calorie"].filter(Boolean);
+        const suffix = names.length ? ` Time for your ${names.join(", ")} check-in.` : " Keep your daily progress moving.";
+        try { new Notification("Arise — Daily reminder", { body: `Your daily check-in is ready.${suffix}`, icon: "/arise-192.png" }); } catch {}
+        scheduleNotification();
+      }, Math.max(1000, next.getTime() - now.getTime()));
+    }
+    scheduleNotification();
+    return () => window.clearTimeout(timer);
+  }, [appState.settings.notifications, appState.settings.notificationTime, appState.settings.features, storageKey]);
 
   useEffect(() => {
     if (!isSidebarOpen) return undefined;
@@ -424,6 +462,18 @@ function AuthenticatedApp({ account, onLogout }) {
         notifications: !previous.settings.notifications,
       },
     }));
+  }
+  function changeFeatures(features) {
+    setAppState((previous) => ({
+      ...previous,
+      settings: { ...previous.settings, features: { ...previous.settings.features, ...features } },
+    }));
+  }
+  function changeNotificationTime(notificationTime) {
+    setAppState((previous) => ({ ...previous, settings: { ...previous.settings, notificationTime } }));
+  }
+  function changeTrackerData(data) {
+    setAppState((previous) => ({ ...previous, settings: { ...previous.settings, ...data } }));
   }
   function changeTheme(theme) {
     setAppState((previous) => ({
@@ -596,7 +646,7 @@ function AuthenticatedApp({ account, onLogout }) {
             <span className="quest-day-celebration-message">All quests complete!</span>
           </div>
         )}
-        <SideBar navItems={navItems} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <SideBar navItems={enabledNavItems} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
         {isSidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Close navigation menu" onClick={() => setIsSidebarOpen(false)} />}
         <div className="main">
           <AppHeader
@@ -615,7 +665,11 @@ function AuthenticatedApp({ account, onLogout }) {
             <Routes>
               <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
               <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/journal" element={<JournalPage initialState={appState} onChange={changeTrackerData} />} />
+              <Route path="/mood" element={<MoodPage initialState={appState} onChange={changeTrackerData} />} />
+              <Route path="/expenses" element={<ExpensePage initialState={appState} onChange={changeTrackerData} />} />
+              <Route path="/calories" element={<CaloriePage initialState={appState} onChange={changeTrackerData} />} />
             </Routes>
           </div>
           <footer className="app-footer">
@@ -626,7 +680,7 @@ function AuthenticatedApp({ account, onLogout }) {
             <p className="app-footer-copyright">© {new Date().getFullYear()} Aiswarya Raghuveer. All rights reserved.</p>
             <div className="app-footer-meta">
               <span>Released October 3, 2026</span>
-              <span>Version 0.0.1</span>
+              <span>Version 0.0.2</span>
               <a href="mailto:aiswaryaraghuveer@gmail.com">aiswaryaraghuveer@gmail.com</a>
             </div>
           </footer>
