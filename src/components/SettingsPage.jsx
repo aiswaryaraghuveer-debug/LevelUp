@@ -3,7 +3,7 @@ import DataTransferControls from "./DataTransferControls.jsx";
 import { calculateLevel, getGoalTarget, getLevelTitle, MAX_XP, MIN_GOAL_DURATION_MONTHS, MAX_GOAL_DURATION_MONTHS } from "../utils/helperFunctions.js";
 import { avatarOptions, themeOptions } from "../../data/data.js";
 
-function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvatar, onChangeGoals, onReset, onToggleNotifications, onChangeTheme, onImportData, onExportData, onExportExcel }) {
+function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvatar, onChangeGoals, onReset, onToggleNotifications, onChangeNotificationTime, onChangeFeatures, onChangeTheme, onImportData, onExportData, onExportExcel }) {
     const currentTitle = getLevelTitle(calculateLevel(initialState.profile.xp));
     const goalTarget = getGoalTarget(initialState.goals, initialState.profile.xp);
     const [durationDraft, setDurationDraft] = useState(String(initialState.goals.durationMonths));
@@ -91,16 +91,39 @@ function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvata
                     </div>
                 </div>
                 <div className="settings-section">
+                    <h2>Features</h2>
+                    <p>Enable optional tools. Enabled tools appear in the sidebar.</p>
+                    <div className="feature-toggle-grid">
+                        {[
+                            ["journal", "Daily Journal", "Write and revisit daily notes."],
+                            ["mood", "Mood Tracker", "Record your daily mood and notes."],
+                            ["expenses", "Expense Tracker", "Track spending and categories."],
+                            ["calories", "Calorie Tracker", "Log meals and calorie intake."],
+                        ].map(([key, label, description]) => (
+                            <div className="setting-row feature-setting-row" key={key}>
+                                <div><h3>{label}</h3><p>{description}</p></div>
+                                <button className={"toggle " + (initialState.settings.features?.[key] ? "on" : "")} aria-label={"Toggle " + label} aria-pressed={Boolean(initialState.settings.features?.[key])} onClick={() => onChangeFeatures({ [key]: !initialState.settings.features?.[key] })}><span></span></button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="settings-section">
                     <h2>Preferences</h2>
                     <div className="setting-row settings-data-row">
                         <div>
                             <h3>Notifications</h3>
-                            <p>Show productivity reminders.</p>
+                            <p>Show a browser notification every day at your chosen time.</p>
                         </div>
                         <button className={`toggle ${initialState.settings.notifications ? "on" : ""}`} aria-label="Toggle notifications" aria-pressed={initialState.settings.notifications} onClick={onToggleNotifications}>
                             <span></span>
                         </button>
                     </div>
+                    {initialState.settings.notifications && (
+                        <label className="form-group notification-time-setting">
+                            <span className="form-label">Daily notification time</span>
+                            <input className="input" type="time" value={initialState.settings.notificationTime || "09:00"} onChange={(event) => onChangeNotificationTime(event.target.value)} />
+                        </label>
+                    )}
                 </div>
                 <div className="settings-section">
                     <h2>Data</h2>
