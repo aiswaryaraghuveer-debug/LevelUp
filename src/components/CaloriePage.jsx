@@ -6,6 +6,7 @@ function CaloriePage({ initialState, onChange }) {
   const [meal, setMeal] = useState("Breakfast");
   const [food, setFood] = useState("");
   const [calories, setCalories] = useState("");
+  const [openDates, setOpenDates] = useState(() => new Set());
   const entries = useMemo(() => [...(initialState.settings.calorieEntries || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.calorieEntries]);
   const groupedEntries = useMemo(() => {
     return entries.reduce((groups, entry) => {
@@ -16,6 +17,15 @@ function CaloriePage({ initialState, onChange }) {
   }, [entries]);
   const orderedDates = useMemo(() => Object.keys(groupedEntries).sort((a, b) => b.localeCompare(a)), [groupedEntries]);
   const total = entries.filter((entry) => entry.date === today).reduce((sum, entry) => sum + Number(entry.calories || 0), 0);
+
+  function toggleDate(date) {
+    setOpenDates((previous) => {
+      const next = new Set(previous);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
+  }
 
   function saveCalories(event) {
     event.preventDefault();
