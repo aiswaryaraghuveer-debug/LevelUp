@@ -84,7 +84,7 @@ function JournalPage({ initialState, onChange }) {
                 <div className="tracker-item-head">
                   <div><strong>{entry.important ? "★ " : ""}{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div>
                   <div className="tracker-item-actions">
-                    <button type="button" className={`btn btn-secondary ${entry.important ? "important-active" : ""}`} onClick={() => toggleImportant(entry.id)}>{entry.important ? "★ Important" : "☆ Important"}</button>
+                    <button type="button" className={`btn btn-secondary journal-star-button ${entry.important ? "important-active" : ""}`} onClick={() => toggleImportant(entry.id)} aria-label={entry.important ? "Remove important flag" : "Mark as important"} title={entry.important ? "Remove important flag" : "Mark as important"}>{entry.important ? "★" : "☆"}</button>
                     <button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button>
                   </div>
                 </div>
