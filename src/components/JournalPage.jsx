@@ -5,6 +5,8 @@ function JournalPage({ initialState, onChange }) {
   const [date, setDate] = useState(today);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [important, setImportant] = useState(false);
+  const [openDates, setOpenDates] = useState(() => new Set([today]));
 
   const groupedEntries = useMemo(() => {
     const sorted = [...(initialState.settings.journalEntries || [])].sort((a, b) => {
@@ -27,15 +29,34 @@ function JournalPage({ initialState, onChange }) {
       date,
       title: title.trim() || "Daily Journal",
       content: content.trim(),
+      important,
       createdAt: new Date().toISOString(),
     };
     onChange({ journalEntries: [entry, ...(initialState.settings.journalEntries || [])] });
     setTitle("");
     setContent("");
+    setImportant(false);
   }
 
   function removeEntry(id) {
     onChange({ journalEntries: (initialState.settings.journalEntries || []).filter((entry) => entry.id !== id) });
+  }
+
+  function toggleImportant(id) {
+    onChange({
+      journalEntries: (initialState.settings.journalEntries || []).map((entry) =>
+        entry.id === id ? { ...entry, important: !entry.important } : entry
+      ),
+    });
+  }
+
+  function toggleDate(date) {
+    setOpenDates((previous) => {
+      const next = new Set(previous);
+      if (next.has(date)) next.delete(date);
+      else next.add(date);
+      return next;
+    });
   }
 
   return (
@@ -47,6 +68,7 @@ function JournalPage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Date</span><input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></label>
           <label className="form-group"><span className="form-label">Title</span><input className="input" placeholder="How was your day?" value={title} onChange={(e) => setTitle(e.target.value)} /></label>
           <label className="form-group"><span className="form-label">Journal</span><textarea className="input tracker-textarea" rows="9" placeholder="Write freely..." value={content} onChange={(e) => setContent(e.target.value)} /></label>
+          <label className="journal-important-toggle"><input type="checkbox" checked={important} onChange={(e) => setImportant(e.target.checked)} /><span>★ Mark as important</span></label>
           <button className="btn btn-primary" type="submit">Save entry</button>
         </form>
         <div className="card tracker-list"><h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => (
