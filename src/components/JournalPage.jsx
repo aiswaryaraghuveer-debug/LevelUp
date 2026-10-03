@@ -71,11 +71,28 @@ function JournalPage({ initialState, onChange }) {
           <label className="journal-important-toggle"><input type="checkbox" checked={important} onChange={(e) => setImportant(e.target.checked)} /><span>★ Mark as important</span></label>
           <button className="btn btn-primary" type="submit">Save entry</button>
         </form>
-        <div className="card tracker-list"><h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => (
-          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => (
-            <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div><button className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button></div><p>{entry.content}</p></article>
-          ))}</div>
-        ))}</div>
+        <div className="card tracker-list"><h2>Entries</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
+          const isOpen = openDates.has(date);
+          const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
+          return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
+            <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
+              <span><span className="date-chevron">{isOpen ? "⌄" : "›"}</span>{date}</span>
+              <span>{groupedEntries[date].length} {groupedEntries[date].length === 1 ? "entry" : "entries"}{importantCount ? ` · ★ ${importantCount} important` : ""}</span>
+            </button>
+            {isOpen && groupedEntries[date].map((entry) => (
+              <article className={`tracker-item ${entry.important ? "journal-important" : ""}`} key={entry.id}>
+                <div className="tracker-item-head">
+                  <div><strong>{entry.important ? "★ " : ""}{entry.title}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div>
+                  <div className="tracker-item-actions">
+                    <button type="button" className={`btn btn-secondary ${entry.important ? "important-active" : ""}`} onClick={() => toggleImportant(entry.id)}>{entry.important ? "★ Important" : "☆ Important"}</button>
+                    <button type="button" className="btn btn-secondary tracker-delete" onClick={() => removeEntry(entry.id)}>Delete</button>
+                  </div>
+                </div>
+                <p>{entry.content}</p>
+              </article>
+            ))}
+          </div>;
+        })}</div>
       </div>
     </section>
   );
