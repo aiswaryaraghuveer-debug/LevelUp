@@ -586,87 +586,109 @@ function AuthenticatedApp({ account, onLogout }) {
     try {
       const { default: ExcelJS } = await import("exceljs");
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = "Arise";
+      workbook.creator = "LevelUp";
+      workbook.created = new Date();
+
+      // Complete machine-readable backup: every current app-state field lives here.
+      const backupSheet = workbook.addWorksheet("Backup");
+      backupSheet.columns = [
+        { header: "Field", key: "field", width: 22 },
+        { header: "Value", key: "value", width: 120 },
+      ];
+      backupSheet.addRows([
+        { field: "Format", value: "levelup-backup" },
+        { field: "Schema version", value: 2 },
+        { field: "Exported at", value: new Date().toISOString() },
+        { field: "Complete app state", value: JSON.stringify(appState) },
+      ]);
+      backupSheet.getCell("B4").alignment = { wrapText: true, vertical: "top" };
+      backupSheet.getRow(4).height = 180;
 
       const profileSheet = workbook.addWorksheet("Profile");
-      const goalTarget = getGoalTarget(appState.goals, appState.profile.xp);
-      const questRewards = new Map(getQuestXPDistribution(appState.quests, goalTarget.dailyXP).map((reward) => [reward.id, reward.xp]));
-      profileSheet.columns = [
-        { header: "Field", key: "field", width: 24 },
-        { header: "Value", key: "value", width: 30 },
-      ];
+      profileSheet.columns = [{ header: "Field", key: "field", width: 28 }, { header: "Value", key: "value", width: 42 }];
       profileSheet.addRows([
         { field: "Name", value: appState.profile.name },
-        { field: "Age", value: appState.profile.age || "Not set" },
-        { field: "Avatar", value: appState.profile.avatar || "Default" },
+        { field: "Age", value: appState.profile.age },
+        { field: "Avatar", value: appState.profile.avatar },
         { field: "Title", value: appState.profile.title },
-        { field: "Level", value: calculateLevel(appState.profile.xp) },
         { field: "XP", value: appState.profile.xp },
+        { field: "Level", value: calculateLevel(appState.profile.xp) },
         { field: "Coins", value: appState.profile.coins },
         { field: "Streak", value: appState.profile.streak },
-        { field: "Quest XP Weights", value: appState.quests.reduce((total, quest) => total + quest.xp, 0) },
-        { field: "Goal", value: appState.goals.description },
-        { field: "Goal duration (months)", value: goalTarget.months },
-        { field: "Goal duration (days)", value: goalTarget.days },
-        { field: "Goal XP target", value: goalTarget.xp },
-        { field: "Goal level target", value: goalTarget.level },
-        { field: "Today's goal XP", value: goalTarget.dailyXP },
       ]);
 
       const questSheet = workbook.addWorksheet("Quests");
       questSheet.columns = [
-        { header: "ID", key: "id", width: 12 },
-        { header: "Quest", key: "title", width: 42 },
-        { header: "Category", key: "category", width: 18 },
-        { header: "XP weight", key: "xp", width: 12 },
-        { header: "Today's XP", key: "todayXP", width: 12 },
-        { header: "Completed", key: "completed", width: 14 },
+        { header: "ID", key: "id", width: 18 }, { header: "Quest", key: "title", width: 42 },
+        { header: "Category", key: "category", width: 20 }, { header: "XP", key: "xp", width: 12 },
+        { header: "Daily XP", key: "dailyXPReward", width: 14 }, { header: "Completed", key: "completed", width: 14 },
+        { header: "Date", key: "date", width: 16 },
       ];
-      questSheet.addRows(appState.quests.map((quest) => ({
-        ...quest,
-        todayXP: quest.completed ? quest.dailyXPReward : questRewards.get(quest.id) || 0,
-        completed: quest.completed ? "Yes" : "No",
-      })));
+      questSheet.addRows(appState.quests.map((q) => ({ id:q.id,title:q.title,category:q.category,xp:q.xp,dailyXPReward:q.dailyXPReward,completed:q.completed?"Yes":"No",date:q.date||"" })));
 
       const habitSheet = workbook.addWorksheet("Habits");
-      habitSheet.columns = [
-        { header: "Habit", key: "name", width: 24 },
-        { header: "Icon", key: "icon", width: 10 },
-        ...Array.from({ length: 7 }, (_, index) => ({ header: `Day ${index + 1}`, key: `day${index + 1}`, width: 12 })),
-      ];
-      habitSheet.addRows(appState.habits.map((habit) => ({
-        name: habit.name,
-        icon: habit.icon,
-        ...Object.fromEntries(habit.completed.map((completed, index) => [`day${index + 1}`, completed ? "Done" : ""])),
-      })));
+      habitSheet.columns = [{ header:"ID",key:"id",width:18 },{ header:"Habit",key:"name",width:28 },{ header:"Icon",key:"icon",width:12 },{ header:"Completed days",key:"completed",width:50 }];
+      habitSheet.addRows(appState.habits.map((h) => ({ id:h.id,name:h.name,icon:h.icon,completed:JSON.stringify(h.completed) })));
 
       const activitySheet = workbook.addWorksheet("Activity");
-      activitySheet.columns = [
-        { header: "Day", key: "day", width: 18 },
-        { header: "XP", key: "xp", width: 12 },
-      ];
-      activitySheet.addRows(appState.weeklyXP.map((xp, index) => ({ day: `Day ${index + 1}`, xp })));
-      activitySheet.addRow({ day: "Focus sessions", xp: appState.focusSessions });
-      activitySheet.addRow({ day: "Focus minutes", xp: appState.focusMinutes });
+      activitySheet.columns = [{ header:"Date",key:"date",width:18 },{ header:"XP",key:"xp",width:12 },{ header:"Quests",key:"quests",width:12 },{ header:"Completed quests",key:"completedQuests",width:20 },{ header:"Total quests",key:"totalQuests",width:16 },{ header:"Focus minutes",key:"focusMinutes",width:18 }];
+      activitySheet.addRows((appState.activityHistory || []).map((a) => ({ ...a })));
+      activitySheet.addRow({ date:"Weekly XP", xp:JSON.stringify(appState.weeklyXP) });
+      activitySheet.addRow({ date:"Focus sessions", xp:appState.focusSessions });
+      activitySheet.addRow({ date:"Focus minutes", xp:appState.focusMinutes });
+
+      const journalSheet = workbook.addWorksheet("Journal");
+      journalSheet.columns = [{header:"Date",key:"date",width:18},{header:"Entry",key:"entry",width:100}];
+      journalSheet.addRows((appState.settings.journalEntries || []).map((x) => ({date:x.date||"",entry:typeof x==="string"?x:JSON.stringify(x)})));
+
+      const moodSheet = workbook.addWorksheet("Mood");
+      moodSheet.columns = [{header:"Date",key:"date",width:18},{header:"Mood",key:"mood",width:30},{header:"Details",key:"details",width:80}];
+      moodSheet.addRows((appState.settings.moodEntries || []).map((x) => ({date:x.date||"",mood:x.mood||"",details:JSON.stringify(x)})));
+
+      const expenseSheet = workbook.addWorksheet("Expenses");
+      expenseSheet.columns = [{header:"Date",key:"date",width:18},{header:"Amount",key:"amount",width:14},{header:"Category",key:"category",width:24},{header:"Details",key:"details",width:80}];
+      expenseSheet.addRows((appState.settings.expenses || []).map((x) => ({date:x.date||"",amount:x.amount||"",category:x.category||"",details:JSON.stringify(x)})));
+      expenseSheet.addRow({date:"Income",amount:appState.settings.expenseIncome});
+      expenseSheet.addRow({date:"Expense goal",amount:appState.settings.expenseGoal});
+
+      const calorieSheet = workbook.addWorksheet("Calories");
+      calorieSheet.columns = [{header:"Date",key:"date",width:18},{header:"Calories",key:"calories",width:16},{header:"Details",key:"details",width:90}];
+      calorieSheet.addRows((appState.settings.calorieEntries || []).map((x) => ({date:x.date||"",calories:x.calories||"",details:JSON.stringify(x)})));
+
+      const focusSheet = workbook.addWorksheet("Focus");
+      focusSheet.columns = [{header:"Metric",key:"metric",width:24},{header:"Value",key:"value",width:30}];
+      focusSheet.addRows([
+        {metric:"Focus sessions",value:appState.focusSessions},
+        {metric:"Focus minutes",value:appState.focusMinutes},
+      ]);
+
+      const goalSheet = workbook.addWorksheet("Goals");
+      goalSheet.columns = [{header:"Field",key:"field",width:28},{header:"Value",key:"value",width:60}];
+      goalSheet.addRows(Object.entries(appState.goals || {}).map(([field,value]) => ({field,value:typeof value==="object"?JSON.stringify(value):value})));
 
       const settingsSheet = workbook.addWorksheet("Settings");
-      settingsSheet.columns = [
-        { header: "Setting", key: "setting", width: 24 },
-        { header: "Value", key: "value", width: 24 },
-      ];
-      settingsSheet.addRows(Object.entries(appState.settings).map(([setting, value]) => ({ setting, value })));
+      settingsSheet.columns = [{header:"Setting",key:"setting",width:28},{header:"Value",key:"value",width:90}];
+      settingsSheet.addRows(Object.entries(appState.settings || {}).map(([setting,value]) => ({
+        setting,
+        value: typeof value === "object" ? JSON.stringify(value) : value
+      })));
+
+      workbook.worksheets.forEach((sheet) => {
+        sheet.getRow(1).font = { bold: true };
+        sheet.views = [{ state: "frozen", ySplit: 1 }];
+      });
 
       const buffer = await workbook.xlsx.writeBuffer();
       const file = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const fileUrl = URL.createObjectURL(file);
       const downloadLink = document.createElement("a");
       downloadLink.href = fileUrl;
-      downloadLink.download = "arise-data.xlsx";
+      downloadLink.download = "levelup-backup.xlsx";
       downloadLink.click();
       window.setTimeout(() => URL.revokeObjectURL(fileUrl), 0);
-      setDataTransferMessage("Data exported as arise-data.xlsx.");
+      setDataTransferMessage("Complete backup exported as levelup-backup.xlsx.");
     } catch {
-      setDataTransferMessage("Arise Excel export failed. Please try again.");
+      setDataTransferMessage("LevelUp Excel export failed. Please try again.");
     }
   }
    function ChangeUsername(newname) {
