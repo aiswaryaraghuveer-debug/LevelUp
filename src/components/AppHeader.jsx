@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { getGreeting } from "../utils/helperFunctions.js";
-function AppHeader({ initialState, onChangeTheme }) {
+import DataTransferControls from "./DataTransferControls.jsx";
+function AppHeader({ initialState, onChangeTheme, onExportData }) {
 
     const greeting = getGreeting(initialState);
     const currentTheme = initialState.settings.theme || "rose";
@@ -31,6 +32,7 @@ function AppHeader({ initialState, onChangeTheme }) {
                     <span className="search-icon">⌕</span>
                     <input placeholder="Search quests, habits, or commands..." className="command-input" ></input>
                 </div>
+                <DataTransferControls compact showImport={false} onExportData={onExportData} />
                 <button
                     className="icon-button theme-shortcut"
                     type="button"

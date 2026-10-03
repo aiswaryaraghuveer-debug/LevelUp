@@ -1,5 +1,6 @@
 import React,{useState} from "react"
-function SettingsPage({initialState,ChangeUsername,onReset,onToggleNotifications,onChangeTheme}) {
+import DataTransferControls from "./DataTransferControls.jsx";
+function SettingsPage({initialState,ChangeUsername,onReset,onToggleNotifications,onChangeTheme,onImportData}) {
     const [age,setAge]=useState(0)
     const [goals,setGoals]=useState("")
 
@@ -62,6 +63,16 @@ function SettingsPage({initialState,ChangeUsername,onReset,onToggleNotifications
                             <button className={`toggle ${initialState.settings.notifications ? "on" : ""}`} aria-label="Toggle notifications" aria-pressed={initialState.settings.notifications} onClick={onToggleNotifications}>
                                 <span></span>
                             </button>
+                        </div>
+                    </div>
+                    <div className="settings-section">
+                        <h2>Data</h2>
+                        <div className="setting-row">
+                            <div>
+                                <h3>Backup your progress</h3>
+                                <p>Import a LEVELUP JSON backup.</p>
+                            </div>
+                            <DataTransferControls showExport={false} onImportFile={onImportData} />
                         </div>
                     </div>
                     <div className="setting-row danger">

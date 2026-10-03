@@ -358,6 +358,28 @@ a {
   flex: 0 0 auto
 }
 
+.data-transfer-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px
+}
+
+.data-transfer-input {
+  display: none
+}
+
+.data-transfer-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto
+}
+
+.data-transfer-status {
+  margin: -12px 0 16px;
+  color: var(--text-soft);
+  font-size: 12px
+}
+
 .chevron {
   color: var(--text-soft)
 }
