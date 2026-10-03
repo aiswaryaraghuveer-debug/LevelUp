@@ -62,7 +62,7 @@ function QuestPage({ initialState, AddQuest, onToggleQuest, onDeleteQuest }) {
             </section>
             {
                 addNewQuest && (
-                    <AddNewQuestOverlay onClose={() => { setAddNewQuest(false) }} onAddQuest={quest => addNewReq(quest)} />
+                    <AddNewQuestOverlay onClose={() => { setAddNewQuest(false) }} onAddQuest={quest => addNewReq(quest)} quests={initialState.quests} />
                 )}
         </>
     )

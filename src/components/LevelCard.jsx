@@ -1,9 +1,10 @@
 import React from "react";
-import {calculateLevel,getTotalXP} from "../utils/helperFunctions"
+import { calculateLevel, getLevelTitle, MAX_XP, XP_PER_LEVEL } from "../utils/helperFunctions"
 function LevelCard ({initialState}) {
-    const totalXp=100
-    const Level=calculateLevel(initialState.profile.xp)
-    const percentage={width:Math.floor((initialState.profile.xp/200)*100) +"%"}
+    const xp = Math.min(MAX_XP, initialState.profile.xp);
+    const Level = calculateLevel(xp);
+    const xpInLevel = xp === MAX_XP ? XP_PER_LEVEL : xp % XP_PER_LEVEL;
+    const percentage = { width: `${Math.floor((xpInLevel / XP_PER_LEVEL) * 100)}%` };
 
     return (
         <>
@@ -17,7 +18,7 @@ function LevelCard ({initialState}) {
                             Level {Level}
                         </div>
                         <div className="level-title">
-                            {initialState.profile.title}
+                            {getLevelTitle(Level)}
                         </div>
                      </div>
                      <div className="mountains">
@@ -25,8 +26,8 @@ function LevelCard ({initialState}) {
                     </div>
                 </div>
                 <div className="xp-label-row">
-                    <span>{initialState.profile.xp} / 200 XP</span>
-                    <strong>{totalXp} total</strong>
+                    <span>{xpInLevel} / {XP_PER_LEVEL} XP</span>
+                    <strong>{xp} total XP</strong>
                 </div>
                 <div className="xp-bar">
                     <div 

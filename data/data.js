@@ -1,33 +1,41 @@
 export const initialState = {
   profile: {
-    name: "Ash",
-    title: "Rookie Adventurer",
-    xp:100,
+    name: "",
+    title: "Beginner",
+    xp: 0,
     coins: 0,
-    streak: 70
+    streak: 0
   },
   quests: [
-    { id: 1, title: "Drink 3L water", category: "Health", xp: 30, completed: true },
-    { id: 2, title: "Complete React practice", category: "Learning", xp: 100, completed: false },
-    { id: 3, title: "30 minute workout", category: "Fitness", xp: 80, completed: false },
-    { id: 4, title: "Read 20 pages", category: "Personal", xp: 40, completed: false },
-    { id: 5, title: "Plan tomorrow", category: "Productivity", xp: 30, completed: false }
+    { id: 1, title: "Drink a glass of water", category: "Health", xp: 2, completed: false },
+    { id: 2, title: "Take a 10-minute walk", category: "Fitness", xp: 2, completed: false },
+    { id: 3, title: "Focus on one priority for 25 minutes", category: "Productivity", xp: 2, completed: false },
+    { id: 4, title: "Review notes or learn something new", category: "Learning", xp: 2, completed: false },
+    { id: 5, title: "Write down tomorrow's top priority", category: "Personal", xp: 2, completed: false }
   ],
   habits: [
-    { id: 1, name: "Water", icon: "💧", completed: [true, true, true, true, false, false, false] },
-    { id: 2, name: "Gym", icon: "🏋️", completed: [true, true, false, true, false, false, false] },
-    { id: 3, name: "Read", icon: "📖", completed: [true, true, true, false, false, false, false] },
-    { id: 4, name: "Coding", icon: "💻", completed: [true, true, true, true, true, false, false] }
+    { id: 1, name: "Water", icon: "💧", completed: [false, false, false, false, false, false, false] },
+    { id: 2, name: "Move", icon: "🏋️", completed: [false, false, false, false, false, false, false] },
+    { id: 3, name: "Read", icon: "📖", completed: [false, false, false, false, false, false, false] },
+    { id: 4, name: "Learn", icon: "💻", completed: [false, false, false, false, false, false, false] }
   ],
-  focusSessions: 17,
-  focusMinutes: 265,
-  weeklyXP: [80, 140, 60, 180, 120, 210, 160],
+  focusSessions: 0,
+  focusMinutes: 0,
+  weeklyXP: [0, 0, 0, 0, 0, 0, 0],
   settings: {
     notifications: true,
     compact: false,
     theme: "rose"
   }
 };
+
+export const themeOptions = [
+  { value: "rose", label: "Rose", color: "#996ff5" },
+  { value: "ocean", label: "Ocean", color: "#4a9fc0" },
+  { value: "forest", label: "Forest", color: "#63945f" },
+  { value: "sunset", label: "Sunset", color: "#d7654c" },
+  { value: "midnight", label: "Midnight", color: "#68d5c3" },
+];
 
 export const achievements = [
   { id: "first", icon: "🎯", name: "First Quest", description: "Complete your first quest", type: "quests", value: 1 },

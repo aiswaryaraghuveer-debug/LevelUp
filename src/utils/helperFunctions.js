@@ -48,9 +48,32 @@ export function addXP(user, amount) {
   return newObj;
 }
 
+export const XP_PER_LEVEL = 100;
+export const MAX_LEVEL = 30;
+export const MAX_XP = XP_PER_LEVEL * MAX_LEVEL;
+export const DAILY_QUEST_XP_LIMIT = 20;
+export const MIN_DAILY_QUEST_XP = 1;
+export const MAX_DAILY_QUEST_XP = 2;
+
 export function calculateLevel(xp) {
-  if (xp == 0) return 1;
-  return Math.ceil(xp / 200);
+  return Math.min(MAX_LEVEL, Math.floor(Math.max(0, xp) / XP_PER_LEVEL) + 1);
+}
+
+export function getLevelTitle(level) {
+  const titles = [
+    "Beginner",
+    "Novice",
+    "Intermediate",
+    "Skilled",
+    "Advanced",
+    "Expert",
+    "Elite",
+    "Master",
+    "Legendary",
+    "Extraordinary",
+  ];
+  const titleIndex = Math.min(titles.length - 1, Math.floor((Math.max(1, level) - 1) / 3));
+  return titles[titleIndex];
 }
 
 export function groupByCategory(tasks) {

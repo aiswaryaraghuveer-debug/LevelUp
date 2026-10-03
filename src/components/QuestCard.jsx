@@ -1,20 +1,14 @@
 import React, { useState } from "react";
 import AddNewQuestOverlay from "./AddNewQuestOverlay";
 function QuestCard({ initialState,onToggleQuest ,AddQuest}) {
-    const [quests, setQuests] = useState(initialState.quests);
+     const quests = initialState.quests;
      const [isAddQuestOpen, setIsAddQuestOpen] = useState(false);
 
     function changeQuestStatus(questId) {
         onToggleQuest(questId)
-        setQuests(prevQuests =>
-            prevQuests.map(quest =>
-                quest.id === questId ? { ...quest, completed: !quest.completed } : quest
-            )
-        );
     }
         function addNewReq(quest) {
         AddQuest(quest)
-     setQuests(previous => [...previous, quest])
      setIsAddQuestOpen(false)
     }
     return (
@@ -52,7 +46,8 @@ function QuestCard({ initialState,onToggleQuest ,AddQuest}) {
              {isAddQuestOpen && (
         <AddNewQuestOverlay
   onClose={() => setIsAddQuestOpen(false)}
-  onAddQuest={quest => addNewReq(quest)}/>
+      onAddQuest={quest => addNewReq(quest)}
+      quests={quests}/>
       )} 
         </>
 

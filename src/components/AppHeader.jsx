@@ -1,16 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { getGreeting } from "../utils/helperFunctions.js";
+import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
+import { themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
-function AppHeader({ initialState, onChangeTheme, onExportData }) {
+function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel }) {
 
+    const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const greeting = getGreeting(initialState);
+    const level = calculateLevel(initialState.profile.xp);
     const currentTheme = initialState.settings.theme || "rose";
-    const nextTheme = {
-        rose: "ocean",
-        ocean: "forest",
-        forest: "rose",
-    }[currentTheme] || "rose";
     return (
         <header className="header">
             <div>
@@ -22,7 +20,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData }) {
                     </h1>
                 </div>
                 <p>
-                    Another day, another level! Keep going!
+                    Level {level} · {getLevelTitle(level)}
                 </p>
 
             </div>
@@ -32,16 +30,41 @@ function AppHeader({ initialState, onChangeTheme, onExportData }) {
                     <span className="search-icon">⌕</span>
                     <input placeholder="Search quests, habits, or commands..." className="command-input" ></input>
                 </div>
-                <DataTransferControls compact showImport={false} onExportData={onExportData} />
-                <button
-                    className="icon-button theme-shortcut"
-                    type="button"
-                    title={`Switch to ${nextTheme} theme`}
-                    aria-label={`Switch to ${nextTheme} theme`}
-                    onClick={() => onChangeTheme(nextTheme)}
-                >
-                    <span aria-hidden="true">◐</span>
-                </button>
+                <DataTransferControls compact showImport={false} onExportData={onExportData} onExportExcel={onExportExcel} />
+                <div className="theme-picker">
+                    <button
+                        className="icon-button theme-shortcut"
+                        type="button"
+                        title="Choose a theme"
+                        aria-label="Theme options"
+                        aria-haspopup="true"
+                        aria-expanded={isThemeMenuOpen}
+                        aria-controls="header-theme-menu"
+                        onClick={() => setIsThemeMenuOpen((open) => !open)}
+                    >
+                        <span aria-hidden="true">◐</span>
+                    </button>
+                    {isThemeMenuOpen && (
+                        <div className="theme-picker-menu" id="header-theme-menu" aria-label="Choose a theme">
+                            {themeOptions.map((theme) => (
+                                <button
+                                    className="theme-picker-option"
+                                    key={theme.value}
+                                    type="button"
+                                    aria-pressed={currentTheme === theme.value}
+                                    onClick={() => {
+                                        onChangeTheme(theme.value);
+                                        setIsThemeMenuOpen(false);
+                                    }}
+                                >
+                                    <span className="theme-swatch" style={{ backgroundColor: theme.color }} aria-hidden="true" />
+                                    {theme.label}
+                                    {currentTheme === theme.value && <span className="theme-option-check" aria-hidden="true">✓</span>}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
                 <Link className="avatar" to="/settings#profile" aria-label="Open profile settings" title="Profile">
                     {initialState.profile.name.charAt(0)}
                 </Link>
