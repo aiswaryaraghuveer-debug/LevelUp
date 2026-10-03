@@ -3,13 +3,13 @@
 :root {
   --bg: #fff8f5;
   --surface: #fff;
-  --surface-soft: #fff1ed;
-  --pink: #f56f91;
-  --pink-dark: #d94f73;
-  --pink-light: #ffe5ec;
-  --orange: #ff9a62;
-  --orange-dark: #ed7741;
-  --orange-light: #ffe1d2;
+  --surface-soft: #f0edff;
+  --pink: #996ff5;
+  --pink-dark: #a44fd9;
+  --pink-light: #e496fe;
+  --orange: #f47db0;
+  --orange-dark: #fe77a9;
+  --orange-light: #fde3f3;
   --green: #72bfa3;
   --yellow: #f4c95d;
   --text: #30252a;
@@ -33,7 +33,7 @@ body {
   margin: 0;
   min-width: 320px;
   font-family: "DM Sans", sans-serif;
-  background: radial-gradient(circle at 80% 10%, #ffe1d2 0, transparent 25%), var(--bg);
+  background: radial-gradient(circle at 80% 10%, #ecbffb 0, transparent 25%), var(--bg);
   color: var(--text)
 }
 
@@ -52,7 +52,7 @@ button {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 3px solid rgba(245, 111, 145, .25)
+  outline: 3px solid rgba(207, 111, 245, 0.25)
 }
 
 a {
@@ -69,7 +69,7 @@ a {
   width: 235px;
   min-height: 100vh;
   padding: 20px 15px;
-  background: rgba(255, 255, 255, .82);
+  background: rgba(230, 220, 255, 0.82);
   border-right: 1px solid var(--border);
   position: fixed;
   left: 0;
@@ -95,7 +95,7 @@ a {
   font-family: "Playfair Display", serif;
   font-size: 30px;
   letter-spacing: 2px;
-  color: #563943
+  color: #8c4fa6
 }
 
 .brand-tagline {
@@ -122,12 +122,12 @@ a {
 
 .nav-item:hover {
   background: var(--pink-light);
-  color: var(--pink-dark);
+  color: var(--border);
   transform: translateX(2px)
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, #f56f91, #ef7893);
+  background: linear-gradient(90deg, #996ff5, #ec8da3);
   color: #fff;
   box-shadow: 0 8px 18px rgba(245, 111, 145, .18)
 }
@@ -149,7 +149,7 @@ a {
 
 .sidebar-quote strong {
   display: block;
-  color: #9a626d;
+  color: #81629a;
   font-weight: 600
 }
 
@@ -313,7 +313,7 @@ a {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #ffd0bc, #f56f91);
+  background: linear-gradient(135deg, #ffd0bc, #996ff5);
   color: #fff;
   font-weight: 700
 }
@@ -340,7 +340,7 @@ a {
 .xp-card {
   padding: 0;
   overflow: hidden;
-  background: linear-gradient(135deg, #f77798, #ff9678);
+  background: linear-gradient(135deg,#ff68ac,#996ff5);
   color: #fff;
   position: relative;
   min-height: 155px
@@ -360,7 +360,7 @@ a {
   height: 50px;
   border-radius: 50%;
   background: #fff;
-  color: #f56f91;
+  color: #996ff5;
   display: grid;
   place-items: center;
   font-size: 27px;
@@ -427,7 +427,7 @@ a {
   display: grid;
   place-items: center;
   background: var(--pink-light);
-  color: var(--pink);
+  color: var(--bg);
   font-size: 18px
 }
 
@@ -447,7 +447,7 @@ a {
 
 .streak-card {
   min-height: 155px;
-  background: linear-gradient(145deg, #f56f91, #ff9b68);
+  background: linear-gradient(145deg, #996ff5, #ff68cd);
   color: #fff;
   overflow: hidden;
   position: relative
