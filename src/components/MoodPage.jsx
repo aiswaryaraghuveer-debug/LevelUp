@@ -13,11 +13,22 @@ function MoodPage({ initialState, onChange }) {
   const [date, setDate] = useState(today);
   const [mood, setMood] = useState("good");
   const [note, setNote] = useState("");
-  const entries = useMemo(() => [...(initialState.settings.moodEntries || [])].sort((a, b) => b.date.localeCompare(a.date)), [initialState.settings.moodEntries]);
+  const groupedEntries = useMemo(() => {
+    const sorted = [...(initialState.settings.moodEntries || [])].sort((a, b) => {
+      const dateOrder = b.date.localeCompare(a.date);
+      if (dateOrder !== 0) return dateOrder;
+      return String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""));
+    });
+    return sorted.reduce((groups, entry) => {
+      if (!groups[entry.date]) groups[entry.date] = [];
+      groups[entry.date].push(entry);
+      return groups;
+    }, {});
+  }, [initialState.settings.moodEntries]);
 
   function saveMood(event) {
     event.preventDefault();
-    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, mood, note: note.trim() };
+    const entry = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date, mood, note: note.trim(), createdAt: new Date().toISOString() };
     onChange({ moodEntries: [entry, ...(initialState.settings.moodEntries || [])] });
     setNote("");
   }
@@ -32,10 +43,12 @@ function MoodPage({ initialState, onChange }) {
           <label className="form-group"><span className="form-label">Note (optional)</span><textarea className="input tracker-textarea" rows="5" placeholder="What is influencing your mood?" value={note} onChange={(e) => setNote(e.target.value)} /></label>
           <button className="btn btn-primary" type="submit">Save mood</button>
         </form>
-        <div className="card tracker-list"><h2>Mood history</h2>{entries.length === 0 ? <p className="tracker-empty">No mood check-ins yet.</p> : entries.map((entry) => {
-          const selected = moods.find((item) => item.value === entry.mood) || moods[2];
-          return <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{selected.icon} {selected.label}</strong><span>{entry.date}</span></div></div>{entry.note && <p>{entry.note}</p>}</article>;
-        })}</div>
+        <div className="card tracker-list"><h2>Mood history</h2>{Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No mood check-ins yet.</p> : Object.keys(groupedEntries).map((date) => (
+          <div className="tracker-date-group" key={date}><h3 className="tracker-date-heading">{date}</h3>{groupedEntries[date].map((entry) => {
+            const selected = moods.find((item) => item.value === entry.mood) || moods[2];
+            return <article className="tracker-item" key={entry.id}><div className="tracker-item-head"><div><strong>{selected.icon} {selected.label}</strong><span>Added {entry.createdAt ? new Date(entry.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Earlier"}</span></div></div>{entry.note && <p>{entry.note}</p>}</article>;
+          })}</div>
+        ))}</div>
       </div>
     </section>
   );
