@@ -1,15 +1,58 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { calculateLevel, getGreeting, getLevelTitle } from "../utils/helperFunctions.js";
-import { themeOptions } from "../../data/data.js";
+import { navItems, themeOptions } from "../../data/data.js";
 import DataTransferControls from "./DataTransferControls.jsx";
 function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, onLogout, onToggleMenu, isMenuOpen }) {
 
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const navigate = useNavigate();
     const greeting = getGreeting(initialState);
     const level = calculateLevel(initialState.profile.xp);
     const currentTheme = initialState.settings.theme || "rift";
     const selectedAvatar = initialState.profile.avatar || "";
+    const availableNavItems = useMemo(() => {
+        const features = initialState.settings?.features || {};
+        return navItems.filter((item) => !item.featureKey || features[item.featureKey]);
+    }, [initialState.settings?.features]);
+
+    const searchResults = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) return [];
+
+        const pages = availableNavItems
+            .filter((item) => item.label.toLowerCase().includes(query))
+            .map((item) => ({ ...item, resultType: "page" }));
+
+        const quests = (initialState.quests || [])
+            .filter((quest) => `${quest.title} ${quest.category || ""}`.toLowerCase().includes(query))
+            .slice(0, 5)
+            .map((quest) => ({ label: quest.title, icon: "◎", path: "/quests", resultType: "quest" }));
+
+        const habits = (initialState.habits || [])
+            .filter((habit) => `${habit.name} ${habit.icon || ""}`.toLowerCase().includes(query))
+            .slice(0, 5)
+            .map((habit) => ({ label: habit.name, icon: habit.icon || "♧", path: "/quests", resultType: "habit" }));
+
+        return [...pages, ...quests, ...habits].slice(0, 8);
+    }, [availableNavItems, initialState.quests, initialState.habits, searchQuery]);
+
+    const handleSearchSelect = (result) => {
+        navigate(result.path);
+        setSearchQuery("");
+    };
+
+    const handleSearchKeyDown = (event) => {
+        if (event.key === "Escape") {
+            setSearchQuery("");
+            return;
+        }
+        if (event.key === "Enter" && searchResults[0]) {
+            handleSearchSelect(searchResults[0]);
+        }
+    };
+
     return (
         <header className="header">
             <div>
@@ -33,8 +76,35 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel, o
 
             <div className="header-actions">
                 <div className="command-wrap">
-                    <span className="search-icon">⌕</span>
-                    <input placeholder="Search quests, habits, or commands..." className="command-input" ></input>
+                    <span className="search-icon" aria-hidden="true">⌕</span>
+                    <input
+                        type="search"
+                        value={searchQuery}
+                        placeholder="Search quests, habits, or commands..."
+                        className="command-input"
+                        aria-label="Search quests, habits, or commands"
+                        autoComplete="off"
+                        onChange={(event) => setSearchQuery(event.target.value)}
+                        onKeyDown={handleSearchKeyDown}
+                    />
+                    {searchQuery.trim() && (
+                        <div className="command-menu" role="listbox" aria-label="Search results">
+                            {searchResults.length ? searchResults.map((result, index) => (
+                                <button
+                                    key={`${result.resultType}-${result.path}-${result.label}-${index}`}
+                                    type="button"
+                                    role="option"
+                                    onMouseDown={(event) => event.preventDefault()}
+                                    onClick={() => handleSearchSelect(result)}
+                                >
+                                    <span aria-hidden="true">{result.icon}</span>
+                                    {result.label}
+                                </button>
+                            )) : (
+                                <div className="command-empty">No matching quests, habits, or pages.</div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 <DataTransferControls compact showImport={false} onExportData={onExportData} onExportExcel={onExportExcel} />
                 <div className="theme-picker">

@@ -33,8 +33,21 @@ export const initialState = {
   },
   settings: {
     notifications: true,
+    notificationTime: "09:00",
     compact: false,
-    theme: "rift"
+    theme: "rift",
+    features: {
+      journal: false,
+      mood: false,
+      expenses: false,
+      calories: false,
+    },
+    journalEntries: [],
+    moodEntries: [],
+    expenses: [],
+    expenseIncome: 0,
+    expenseGoal: 0,
+    calorieEntries: [],
   }
 };
 
@@ -70,9 +83,9 @@ export const achievements = [
 export const navItems = [
   { label: "Dashboard", path: "/", icon: "⌂" },
   { label: "Quests", path: "/quests", icon: "◎" },
-  // { label: "Habits", path: "/habits", icon: "♧" },
-  // { label: "Focus", path: "/focus", icon: "◷" },
-  // { label: "Analytics", path: "/analytics", icon: "▥" },
-  // { label: "Achievements", path: "/achievements", icon: "♜" },
+  { label: "Daily Journal", path: "/journal", icon: "✎", featureKey: "journal" },
+  { label: "Mood Tracker", path: "/mood", icon: "☻", featureKey: "mood" },
+  { label: "Expense Tracker", path: "/expenses", icon: "₹", featureKey: "expenses" },
+  { label: "Calorie Tracker", path: "/calories", icon: "◉", featureKey: "calories" },
   { label: "Settings", path: "/settings", icon: "⚙" }
 ];
