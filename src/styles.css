@@ -2971,3 +2971,66 @@ a {
   .main{padding-left:9px;padding-right:9px}.header-actions{gap:5px}.greeting h1{font-size:20px}.summary-card{padding:11px}.summary-card strong{font-size:16px}
   .tracker-card-header{padding-left:12px;padding-right:12px}.tracker-item-head{gap:6px}.tracker-item-actions{gap:3px}.tracker-delete,.journal-star-button{min-width:38px;width:38px;min-height:38px}
 }
+
+
+/* Issue fixes: mobile tracker spacing, modal behavior, analytics and RPG feedback */
+.header { background: transparent; }
+.avatar { overflow: hidden; padding: 0; }
+.avatar svg { display: block; }
+.avatar-setting { display: flex; align-items: center; gap: 10px; }
+.feature-actions { display: flex; align-items: center; gap: 8px; }
+.tracker-reset-button { padding: 7px 10px; }
+.modal-message { margin: 0 0 20px; color: var(--text-soft); line-height: 1.6; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.btn-danger { background: #d64545; color: #fff; }
+.briefing-overlay { z-index: 1100; }
+.daily-briefing { text-align: center; }
+.briefing-eyebrow { color: var(--pink); font-size: 10px; font-weight: 800; letter-spacing: 2px; }
+.daily-briefing h2 { margin: 8px 0; font-family: var(--font-display); font-size: 28px; }
+.briefing-score { font-family: var(--font-display); font-size: 42px; font-weight: 800; color: var(--brand-name); margin: 18px 0 8px; }
+.briefing-stars { font-size: 26px; letter-spacing: 4px; color: var(--sun-accent); margin: 12px 0; }
+.briefing-streak { color: var(--brand-name); font-weight: 700; }
+.briefing-missions { display: grid; gap: 7px; margin: 18px 0; text-align: left; }
+.briefing-missions div { display: grid; grid-template-columns: 22px 1fr auto; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; }
+.briefing-missions strong { color: var(--pink-dark); }
+.level-up-celebration {
+  position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; align-content: center;
+  pointer-events: none; background: radial-gradient(circle, color-mix(in srgb, var(--pink) 20%, transparent), transparent 45%);
+  animation: level-up-fade 2.7s ease both;
+}
+.level-up-celebration::before,.level-up-celebration::after { content:""; position:absolute; width:190px; aspect-ratio:1; border:2px solid var(--pink); border-radius:50%; animation: level-up-ring 2.2s ease-out both; }
+.level-up-celebration::after { width:300px; border-color:var(--orange); animation-delay:.12s; }
+.level-up-rune { position:relative; z-index:1; font-size:38px; color:var(--pink); animation: level-up-rune 1.2s ease-out both; }
+.level-up-label { position:relative; z-index:1; font-size:13px; letter-spacing:5px; font-weight:800; color:var(--brand-name); }
+.level-up-celebration > strong { position:relative; z-index:1; font-family:var(--font-display); font-size:92px; line-height:1; color:var(--text); }
+.level-up-celebration > span { position:relative; z-index:1; color:var(--text-soft); font-size:14px; }
+.level-up-style-1 { animation-name: level-up-fade; }
+.level-up-style-2 { animation-name: level-up-fade-2; }
+.level-up-style-3 { animation-name: level-up-fade-3; }
+.level-up-style-4 { animation-name: level-up-fade-4; }
+.level-up-style-5 { animation-name: level-up-fade-5; }
+.analytics-two-column { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:17px; margin-top:17px; }
+.analytics-note { color:var(--text-soft); line-height:1.6; }
+.bar-value { font-size:10px; color:var(--text-soft); min-height:14px; }
+.analytics-chart .bar { min-height:4px; }
+.auth-avatar-options button { display:grid; place-items:center; padding:2px; }
+.auth-avatar-options button svg { display:block; }
+.tracker-date-heading { position: relative; top:auto; }
+@media(max-width:720px) {
+  .tracker-date-heading { padding:12px 14px; min-height:52px; }
+  .tracker-date-heading > span:first-child { padding-left:3px; }
+  .tracker-item { padding-left:14px; padding-right:14px; }
+  .analytics-two-column { grid-template-columns:1fr; }
+  .feature-actions { width:100%; justify-content:flex-end; }
+}
+@keyframes level-up-fade { 0%{opacity:0} 12%{opacity:1} 78%{opacity:1} 100%{opacity:0} }
+@keyframes level-up-fade-2 { 0%{opacity:0;transform:scale(.92)} 15%{opacity:1;transform:scale(1.03)} 75%{opacity:1;transform:scale(1)} 100%{opacity:0;transform:scale(1.08)} }
+@keyframes level-up-fade-3 { 0%{opacity:0;transform:rotate(-2deg)} 12%{opacity:1;transform:rotate(2deg)} 28%{transform:rotate(-1deg)} 75%{opacity:1} 100%{opacity:0;transform:rotate(0) translateY(-15px)} }
+@keyframes level-up-fade-4 { 0%{opacity:0;transform:translateY(35px)} 15%{opacity:1;transform:translateY(0)} 75%{opacity:1} 100%{opacity:0;transform:translateY(-20px)} }
+@keyframes level-up-fade-5 { 0%{opacity:0;filter:brightness(1)} 15%{opacity:1;filter:brightness(1.8)} 35%{filter:brightness(1)} 75%{opacity:1} 100%{opacity:0} }
+@keyframes level-up-ring { from{opacity:.8;transform:scale(.2) rotate(0)} to{opacity:0;transform:scale(2.1) rotate(180deg)} }
+@keyframes level-up-rune { 0%{opacity:0;transform:scale(.4) rotate(-30deg)} 40%{opacity:1;transform:scale(1.25) rotate(10deg)} 100%{opacity:1;transform:scale(1) rotate(0)} }
+@media(prefers-reduced-motion:reduce) {
+  .level-up-celebration,.level-up-rune,.level-up-celebration::before,.level-up-celebration::after { animation:none; }
+  .level-up-celebration { opacity:1; }
+}

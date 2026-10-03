@@ -24,6 +24,7 @@ export const initialState = {
   focusSessions: 0,
   focusMinutes: 0,
   weeklyXP: [0, 0, 0, 0, 0, 0, 0],
+  activityHistory: [],
   lastQuestCompletionDate: null,
   goals: {
     description: "",
@@ -37,6 +38,7 @@ export const initialState = {
     compact: false,
     theme: "rift",
     features: {
+      analytics: true,
       journal: false,
       mood: false,
       expenses: false,
@@ -70,6 +72,14 @@ export const avatarOptions = [
   { value: "🌙", label: "Lunar" },
   { value: "⚡", label: "Storm" },
   { value: "🧭", label: "Scout" },
+  { value: "phoenix", label: "Phoenix" },
+  { value: "monk", label: "Monk" },
+  { value: "void", label: "Void Walker" },
+  { value: "druid", label: "Druid" },
+  { value: "alchemist", label: "Alchemist" },
+  { value: "ronin", label: "Ronin" },
+  { value: "sentinel", label: "Sentinel" },
+  { value: "mystic", label: "Mystic" },
 ];
 
 export const achievements = [
@@ -83,6 +93,7 @@ export const achievements = [
 export const navItems = [
   { label: "Dashboard", path: "/", icon: "⌂" },
   { label: "Quests", path: "/quests", icon: "◎" },
+  { label: "Analytics", path: "/analytics", icon: "▥", featureKey: "analytics" },
   { label: "Daily Journal", path: "/journal", icon: "✎", featureKey: "journal" },
   { label: "Mood Tracker", path: "/mood", icon: "☻", featureKey: "mood" },
   { label: "Expense Tracker", path: "/expenses", icon: "₹", featureKey: "expenses" },

@@ -1,4 +1,4 @@
-import React ,{useEffect, useState} from "react";
+import React ,{useEffect, useRef, useState} from "react";
 import AppHeader from "./components/AppHeader";
 import AuthScreen from "./components/AuthScreen.jsx";
 import SideBar from "./components/SideBar";
@@ -10,6 +10,8 @@ import JournalPage from "./components/JournalPage.jsx";
 import MoodPage from "./components/MoodPage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
 import CaloriePage from "./components/CaloriePage.jsx";
+import AnalyticsPage from "./components/AnalyticsPage.jsx";
+import DailyBriefing from "./components/DailyBriefing.jsx";
 import "./styles.css";
 import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
@@ -192,6 +194,28 @@ function normalizeAppState(value) {
   };
 }
 
+function playQuestCompleteSound() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const now = context.currentTime;
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, now + index * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + index * 0.09 + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.09 + 0.22);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now + index * 0.09);
+      oscillator.stop(now + index * 0.09 + 0.24);
+    });
+    window.setTimeout(() => context.close().catch(() => {}), 700);
+  } catch {}
+}
+
 function loadAppState(storageKey) {
   try {
     const savedState = window.localStorage.getItem(storageKey);
@@ -283,6 +307,18 @@ function AuthenticatedApp({ account, onLogout }) {
   const [appState, setAppState] = useState(() => loadAppState(storageKey));
   const [dataTransferMessage, setDataTransferMessage] = useState("");
   const [questCelebrationId, setQuestCelebrationId] = useState(0);
+  const [briefingMode, setBriefingMode] = useState(null);
+  useEffect(() => {
+    const hour = new Date().getHours();
+    const mode = hour >= 5 && hour < 12 ? "morning" : hour >= 18 ? "night" : null;
+    if (!mode) return;
+    const dateKey = getLocalDateKey();
+    const briefingKey = "levelup-briefing-v1:" + account.key + ":" + dateKey + ":" + mode;
+    if (window.localStorage.getItem(briefingKey)) return;
+    window.localStorage.setItem(briefingKey, "shown");
+    setBriefingMode(mode);
+  }, [account.key]);
+
   const enabledNavItems = navItems.filter((item) => !item.featureKey || appState.settings.features?.[item.featureKey]);
 
   useEffect(() => {
@@ -355,7 +391,10 @@ function AuthenticatedApp({ account, onLogout }) {
         quest.id === questId || (quest.completed && quest.completedOn === today)
       );
 
-    if (completesFinalQuest) setQuestCelebrationId((previous) => previous + 1);
+    if (completesFinalQuest) {
+      setQuestCelebrationId((previous) => previous + 1);
+      playQuestCompleteSound();
+    }
 
     setAppState((previous) => {
       const currentDate = getLocalDateKey();
@@ -395,6 +434,7 @@ function AuthenticatedApp({ account, onLogout }) {
         goals,
         profile: { ...previous.profile, xp, title: getLevelTitle(calculateLevel(xp)), streak: streakProgress.streak },
         lastQuestCompletionDate: streakProgress.lastCompletedDate,
+        activityHistory,
         quests: todaysQuests.map((quest) =>
           quest.id === questId
             ? {
@@ -454,6 +494,27 @@ function AuthenticatedApp({ account, onLogout }) {
   function resetData() {
     setAppState(initialState);
   }
+  function resetTracker(trackerKey) {
+    const trackerData = {
+      journal: { journalEntries: [] },
+      mood: { moodEntries: [] },
+      expenses: { expenses: [], expenseIncome: 0, expenseGoal: 0 },
+      calories: { calorieEntries: [] },
+    };
+    if (!trackerData[trackerKey]) return;
+    setAppState((previous) => ({
+      ...previous,
+      settings: {
+        ...previous.settings,
+        ...trackerData[trackerKey],
+        features: {
+          ...previous.settings.features,
+          [trackerKey]: false,
+        },
+      },
+    }));
+  }
+
   function toggleNotifications() {
     setAppState((previous) => ({
       ...previous,
@@ -486,7 +547,8 @@ function AuthenticatedApp({ account, onLogout }) {
   }
   async function importData(file) {
     try {
-      const importedState = normalizeAppState(JSON.parse(await file.text()));
+      const parsed = JSON.parse(await file.text());
+      const importedState = normalizeAppState(parsed?.state && typeof parsed.state === "object" ? parsed.state : parsed);
       setAppState(importedState);
       setDataTransferMessage("Data imported successfully.");
     } catch {
@@ -665,11 +727,12 @@ function AuthenticatedApp({ account, onLogout }) {
             <Routes>
               <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
               <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onResetTracker={resetTracker} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
               <Route path="/journal" element={<JournalPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/mood" element={<MoodPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/expenses" element={<ExpensePage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/calories" element={<CaloriePage initialState={appState} onChange={changeTrackerData} />} />
+              <Route path="/analytics" element={<AnalyticsPage initialState={appState} />} />
             </Routes>
           </div>
           <footer className="app-footer">

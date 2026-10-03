@@ -8,7 +8,7 @@ function JournalPage({ initialState, onChange }) {
   const [important, setImportant] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(true);
-  const [openDates, setOpenDates] = useState(() => new Set([today]));
+  const [openDates, setOpenDates] = useState(null);
 
   const groupedEntries = useMemo(() => {
     const sorted = [...(initialState.settings.journalEntries || [])].sort((a, b) => {
@@ -53,12 +53,7 @@ function JournalPage({ initialState, onChange }) {
   }
 
   function toggleDate(date) {
-    setOpenDates((previous) => {
-      const next = new Set(previous);
-      if (next.has(date)) next.delete(date);
-      else next.add(date);
-      return next;
-    });
+    setOpenDates((previous) => { const next = new Set(previous || []); if (previous === null) { next.delete(date); next.add("___collapsed_first___"); } else if (next.has("___collapsed_first___") && date === Object.keys(groupedEntries)[0]) { next.delete("___collapsed_first___"); next.add(date); } else if (next.has(date)) next.delete(date); else next.add(date); return next; });
   }
 
   return (
@@ -83,8 +78,8 @@ function JournalPage({ initialState, onChange }) {
           </button>
           {logsOpen && (
             <>
-              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
-                const isOpen = openDates.has(date);
+              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date, index) => {
+                const isOpen = openDates === null ? index === 0 : openDates.has(date);
                 const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
                 return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
                   <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
