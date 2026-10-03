@@ -126,6 +126,7 @@ function ExpensePage({ initialState, onChange }) {
       </div>
     </section>
     {resetOpen && <ConfirmOverlay title="Reset expense tracker?" message="All expenses, income and spending goals will be deleted." confirmLabel="Reset expenses" danger onClose={() => setResetOpen(false)} onConfirm={resetExpenses} />}
+    </>
   );
 }
 export default ExpensePage;
