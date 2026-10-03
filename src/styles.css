@@ -2839,3 +2839,33 @@ a {
   0%, 100% { opacity: 0; }
   10%, 90% { opacity: 1; }
 }
+
+.tracker-page { max-width: 1180px; }
+.tracker-grid { display: grid; grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); gap: 18px; align-items: start; }
+.tracker-form, .tracker-list { padding: 22px; }
+.tracker-form h2, .tracker-list h2 { margin-top: 0; }
+.tracker-textarea { resize: vertical; min-height: 130px; }
+.tracker-list { display: grid; gap: 12px; }
+.tracker-item { padding: 15px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface-glass); }
+.tracker-item-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.tracker-item-head div { display: grid; gap: 4px; }
+.tracker-item-head span { color: var(--text-soft); font-size: 12px; }
+.tracker-item p { margin: 12px 0 0; white-space: pre-wrap; line-height: 1.55; color: var(--text-soft); }
+.tracker-empty { color: var(--text-soft); }
+.tracker-delete { padding: 7px 10px; }
+.tracker-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+.summary-card { padding: 18px; display: grid; gap: 6px; }
+.summary-card span { color: var(--text-soft); font-size: 12px; }
+.summary-card strong { font-family: var(--font-display); font-size: 24px; color: var(--brand-name); }
+.mood-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.mood-option { display: grid; gap: 3px; place-items: center; min-width: 66px; padding: 9px 8px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text-soft); }
+.mood-option.selected { border-color: var(--pink); background: var(--pink-light); color: var(--text); box-shadow: 0 0 0 2px var(--focus-ring); }
+.feature-toggle-grid { display: grid; gap: 4px; }
+.feature-setting-row { border-top: 1px solid var(--divider-soft); }
+.notification-time-setting { max-width: 230px; margin-top: 14px; }
+@media (max-width: 800px) {
+  .tracker-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .tracker-summary { grid-template-columns: 1fr; }
+}
