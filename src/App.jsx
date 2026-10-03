@@ -180,6 +180,12 @@ function normalizeAppState(value) {
       ...initialState.settings,
       ...settings,
       theme: themeOptions.some((theme) => theme.value === settings.theme) ? settings.theme : initialState.settings.theme,
+      notificationTime: typeof settings.notificationTime === "string" && /^([01]\\d|2[0-3]):[0-5]\\d$/.test(settings.notificationTime) ? settings.notificationTime : initialState.settings.notificationTime,
+      features: { ...initialState.settings.features, ...(isRecord(settings.features) ? settings.features : {}) },
+      journalEntries: Array.isArray(settings.journalEntries) ? settings.journalEntries : [],
+      moodEntries: Array.isArray(settings.moodEntries) ? settings.moodEntries : [],
+      expenses: Array.isArray(settings.expenses) ? settings.expenses : [],
+      calorieEntries: Array.isArray(settings.calorieEntries) ? settings.calorieEntries : [],
     },
   };
 }
@@ -303,6 +309,31 @@ function AuthenticatedApp({ account, onLogout }) {
 
     return () => window.clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!appState.settings.notifications || !("Notification" in window)) return undefined;
+    let timer;
+    async function scheduleNotification() {
+      if (Notification.permission === "default") {
+        try { await Notification.requestPermission(); } catch { return; }
+      }
+      if (Notification.permission !== "granted") return;
+      const [hours, minutes] = (appState.settings.notificationTime || "09:00").split(":").map(Number);
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(hours, minutes, 0, 0);
+      if (next <= now) next.setDate(next.getDate() + 1);
+      timer = window.setTimeout(() => {
+        const features = appState.settings.features || {};
+        const names = [features.journal && "journal", features.mood && "mood", features.expenses && "expense", features.calories && "calorie"].filter(Boolean);
+        const suffix = names.length ? ` Time for your ${names.join(", ")} check-in.` : " Keep your daily progress moving.";
+        try { new Notification("Arise — Daily reminder", { body: `Your daily check-in is ready.${suffix}`, icon: "/arise-192.png" }); } catch {}
+        scheduleNotification();
+      }, Math.max(1000, next.getTime() - now.getTime()));
+    }
+    scheduleNotification();
+    return () => window.clearTimeout(timer);
+  }, [appState.settings.notifications, appState.settings.notificationTime, appState.settings.features, storageKey]);
 
   useEffect(() => {
     if (!isSidebarOpen) return undefined;
