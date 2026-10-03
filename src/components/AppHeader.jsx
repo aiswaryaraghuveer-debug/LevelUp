@@ -8,7 +8,7 @@ function AppHeader({ initialState, onChangeTheme, onExportData, onExportExcel })
     const [isThemeMenuOpen, setIsThemeMenuOpen] = useState(false);
     const greeting = getGreeting(initialState);
     const level = calculateLevel(initialState.profile.xp);
-    const currentTheme = initialState.settings.theme || "rose";
+    const currentTheme = initialState.settings.theme || "rift";
     return (
         <header className="header">
             <div>

@@ -18,7 +18,7 @@ function SettingsPage({initialState,ChangeUsername,onReset,onToggleNotifications
                 <div className="page-heading">
                     <div>
                         <h1>Settings</h1>
-                        <p>Customize your LEVELUP experience.</p>
+                        <p>Customize your Arise experience.</p>
                     </div>
                 </div>
                 <div className="card settings-card">
@@ -49,7 +49,7 @@ function SettingsPage({initialState,ChangeUsername,onReset,onToggleNotifications
                             <h3>Theme</h3>
                             <p>Choose the color palette for your workspace.</p>
                         </div>
-                            <select className="select settings-theme" aria-label="Theme" value={initialState.settings.theme || "rose"} onChange={(event) => onChangeTheme(event.target.value)}>
+                            <select className="select settings-theme" aria-label="Theme" value={initialState.settings.theme || "rift"} onChange={(event) => onChangeTheme(event.target.value)}>
                                 {themeOptions.map((theme) => <option key={theme.value} value={theme.value}>{theme.label}</option>)}
                             </select>
                         </div>

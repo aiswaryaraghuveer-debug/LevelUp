@@ -5,10 +5,13 @@ function SideBar({ navItems }) {
         <div className="sidebar">
             <nav >
                 <div className="brand">
-                    <div className="brand-crown">♛</div>
-                    <div className="brand-name">LEVELUp
-                    </div>
-                    <div className="brand-tagline">Small steps. Big dreams</div>
+                    <svg className="brand-icon" viewBox="0 0 48 48" aria-hidden="true">
+                        <path className="brand-icon-frame" d="M10 32C5 22 10 10 21 8c10-2 18 4 18 15" />
+                        <path className="brand-icon-arrow" d="M15 36h18M24 34V17m-7 7 7-7 7 7" />
+                        <path className="brand-icon-spark" d="m36 4 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" />
+                    </svg>
+                    <div className="brand-name">Arise</div>
+                    <div className="brand-tagline">Rise through every level</div>
                 </div>
                 <div className="nav">
                     {navItems.map((item) => (

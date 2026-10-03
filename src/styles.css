@@ -1,6 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Lora:wght@600;700&family=Manrope:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
+  --font-body: "DM Sans", sans-serif;
+  --font-display: "Playfair Display", serif;
   --bg: #fff8f5;
   --surface: #fff;
   --surface-soft: #f0edff;
@@ -64,7 +66,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  font-family: "DM Sans", sans-serif;
+  font-family: var(--font-body);
   background: radial-gradient(circle at 80% 10%, var(--ambient-glow) 0, transparent 25%), var(--bg);
   color: var(--text)
 }
@@ -95,6 +97,7 @@ a {
 .app {
   display: flex;
   min-height: 100vh;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text)
 }
@@ -119,16 +122,39 @@ a {
   padding: 3px 8px 25px
 }
 
-.brand-crown {
-  color: var(--pink);
-  font-size: 25px;
-  line-height: 1
+.brand-icon {
+  display: block;
+  width: 38px;
+  height: 38px;
+  margin: 0 auto 5px;
+}
+
+.brand-icon-frame {
+  fill: none;
+  stroke: var(--pink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.brand-icon-arrow {
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-icon-spark {
+  fill: var(--orange);
+  stroke: none;
 }
 
 .brand-name {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-display);
   font-size: 30px;
-  letter-spacing: 2px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
   color: var(--brand-name)
 }
 
@@ -220,7 +246,7 @@ a {
 
 .greeting h1 {
   margin: 0;
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-display);
   font-size: 27px
 }
 
@@ -653,7 +679,7 @@ a {
   place-items: center;
   text-align: center;
   color: var(--brand-soft);
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-display);
   font-size: 19px;
   border: 1px solid var(--border)
 }
@@ -1023,7 +1049,7 @@ a {
 }
 
 .page-heading h1 {
-  font-family: "Playfair Display", serif;
+  font-family: var(--font-display);
   font-size: 35px;
   margin: 0
 }
@@ -1464,7 +1490,7 @@ a {
 
 .modal-title h2 {
   margin: 0;
-  font-family: "Playfair Display", serif
+  font-family: var(--font-display)
 }
 
 .form-group {
@@ -1531,19 +1557,12 @@ a {
   }
 
   .brand-name {
-    font-size: 0
-  }
-
-  .brand-name:after {
-    content: "LU";
-    font-family: "DM Sans";
-    font-size: 19px;
+    font-size: 12px;
     font-weight: 800;
-    color: var(--pink-dark)
+    color: var(--pink-dark);
   }
 
   .brand-tagline,
-  .brand-crown,
   .nav-item span:not(.nav-icon),
   .sidebar-quote {
     display: none
@@ -1780,6 +1799,8 @@ a {
 }
 
 .app[data-theme="ocean"] {
+  --font-body: "Manrope", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
   --bg: #f2f8fb;
   --surface-soft: #e3f1f6;
   --pink: #4a9fc0;
@@ -1827,6 +1848,8 @@ a {
 }
 
 .app[data-theme="forest"] {
+  --font-body: "Nunito Sans", sans-serif;
+  --font-display: "Lora", serif;
   --bg: #e9ffe0;
   --surface-soft: #e5efdf;
   --pink: #63945f;
@@ -1874,6 +1897,8 @@ a {
 }
 
 .app[data-theme="sunset"] {
+  --font-body: "DM Sans", sans-serif;
+  --font-display: "Cormorant Garamond", serif;
   --bg: #fff7ed;
   --surface: #fffdf9;
   --surface-soft: #ffead5;
@@ -1924,51 +1949,157 @@ a {
 }
 
 .app[data-theme="midnight"] {
-  --bg: #171e24;
-  --surface: #222c34;
-  --surface-soft: #293943;
-  --pink: #68d5c3;
-  --pink-dark: #33a999;
-  --pink-light: #324f4e;
-  --orange: #f0a56c;
-  --orange-dark: #d27e48;
-  --orange-light: #493629;
-  --green: #79c78d;
-  --yellow: #f0c66d;
-  --text: #e6edf0;
-  --text-soft: #a4b5bc;
-  --border: #3a4b53;
-  --shadow: 0 10px 30px rgba(0, 0, 0, .24);
-  --ambient-glow: #294745;
-  --focus-ring: rgba(104, 213, 195, .25);
-  --sidebar-surface: rgba(31, 45, 53, .96);
-  --brand-name: #80dfd0;
-  --brand-soft: #a5c8c3;
-  --text-muted: #91a3aa;
-  --text-quiet: #82959d;
-  --text-disabled: #6d7c83;
-  --on-accent: #10201f;
-  --surface-card: rgba(34, 44, 52, .96);
-  --surface-glass: rgba(34, 44, 52, .76);
-  --nav-gradient: linear-gradient(90deg, #68d5c3, #f0a56c);
-  --level-gradient: linear-gradient(135deg, #33a999, #68d5c3);
-  --streak-gradient: linear-gradient(145deg, #33a999, #f0a56c);
-  --avatar-gradient: linear-gradient(135deg, #f0a56c, #68d5c3);
-  --quote-gradient: linear-gradient(145deg, #293943, #3c3934);
-  --shadow-nav: 0 8px 18px rgba(0, 0, 0, .25);
-  --shadow-input: 0 5px 18px rgba(0, 0, 0, .18);
-  --shadow-popover: 0 20px 40px rgba(0, 0, 0, .35);
-  --shadow-button: 0 7px 15px rgba(51, 169, 153, .2);
-  --shadow-modal: 0 30px 80px rgba(0, 0, 0, .45);
-  --modal-scrim: rgba(0, 0, 0, .62);
-  --divider-soft: #35464e;
-  --donut-track: #293943;
-  --progress-track: #2e3d45;
-  --level-line: #3a4b53;
-  --level-inactive: #35434a;
-  --sun-accent: #f0c66d;
-  --habit-muted: #42615a;
-  --achievement-surface: #365748;
-  --achievement-ink: #9ed5af;
-  --toggle-off: #47575e;
+  --font-body: "Manrope", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --bg: #050914;
+  --surface: #0b1220;
+  --surface-soft: #111c2e;
+  --pink: #5d9dff;
+  --pink-dark: #3674d1;
+  --pink-light: #1a2d4d;
+  --orange: #51c7d5;
+  --orange-dark: #2695a6;
+  --orange-light: #14323a;
+  --green: #69c9a1;
+  --yellow: #e6c36f;
+  --text: #e8efff;
+  --text-soft: #9baecb;
+  --border: #1e2c45;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --ambient-glow: #10254a;
+  --focus-ring: rgba(93, 157, 255, .3);
+  --sidebar-surface: rgba(7, 13, 25, .98);
+  --brand-name: #84b5ff;
+  --brand-soft: #a9bbd8;
+  --text-muted: #8497b4;
+  --text-quiet: #7184a0;
+  --text-disabled: #61718a;
+  --on-accent: #07101e;
+  --surface-card: rgba(11, 18, 32, .97);
+  --surface-glass: rgba(17, 28, 46, .78);
+  --nav-gradient: linear-gradient(90deg, #1b3e77, #101b31);
+  --level-gradient: linear-gradient(135deg, #3674d1, #51c7d5);
+  --streak-gradient: linear-gradient(145deg, #204b8b, #2695a6);
+  --avatar-gradient: linear-gradient(135deg, #5d9dff, #203e70);
+  --quote-gradient: linear-gradient(145deg, #111c2e, #172943);
+  --shadow-nav: 0 8px 18px rgba(0, 0, 0, .34);
+  --shadow-input: 0 5px 18px rgba(0, 0, 0, .2);
+  --shadow-popover: 0 20px 40px rgba(0, 0, 0, .4);
+  --shadow-button: 0 7px 15px rgba(54, 116, 209, .25);
+  --shadow-modal: 0 30px 80px rgba(0, 0, 0, .5);
+  --modal-scrim: rgba(0, 3, 10, .7);
+  --divider-soft: #1b2940;
+  --donut-track: #111c2e;
+  --progress-track: #1a2a40;
+  --level-line: #263854;
+  --level-inactive: #1b2940;
+  --sun-accent: #e6c36f;
+  --habit-muted: #244239;
+  --achievement-surface: #1b3e34;
+  --achievement-ink: #84d7b2;
+  --toggle-off: #2c3a4e;
+}
+
+.app[data-theme="rift"] {
+  --font-body: "Barlow", sans-serif;
+  --font-display: "Barlow Condensed", sans-serif;
+  --bg: #0a0d13;
+  --surface: #121923;
+  --surface-soft: #1a2531;
+  --pink: #70d9ee;
+  --pink-dark: #35a8c0;
+  --pink-light: #243b47;
+  --orange: #eab15d;
+  --orange-dark: #bd8131;
+  --orange-light: #382d20;
+  --green: #7ccfa3;
+  --yellow: #edc96f;
+  --text: #e9eef3;
+  --text-soft: #a2afbb;
+  --border: #2b3744;
+  --shadow: 0 12px 32px rgba(0, 0, 0, .32);
+  --ambient-glow: #17303b;
+  --focus-ring: rgba(112, 217, 238, .28);
+  --sidebar-surface: rgba(15, 21, 30, .97);
+  --brand-name: #86e4f5;
+  --brand-soft: #a9bbc8;
+  --text-muted: #8a9aa7;
+  --text-quiet: #778794;
+  --text-disabled: #687681;
+  --on-accent: #0b171c;
+  --surface-card: rgba(18, 25, 35, .97);
+  --surface-glass: rgba(26, 37, 49, .72);
+  --nav-gradient: linear-gradient(100deg, #273e59, #91643a);
+  --level-gradient: linear-gradient(130deg, #35a8c0, #eab15d);
+  --streak-gradient: linear-gradient(145deg, #223e58, #b77f3e);
+  --avatar-gradient: linear-gradient(135deg, #eab15d, #35a8c0);
+  --quote-gradient: linear-gradient(145deg, #1a2531, #30271f);
+  --shadow-nav: 0 8px 22px rgba(0, 0, 0, .32);
+  --shadow-input: 0 5px 18px rgba(0, 0, 0, .2);
+  --shadow-popover: 0 20px 40px rgba(0, 0, 0, .42);
+  --shadow-button: 0 7px 18px rgba(53, 168, 192, .22);
+  --shadow-modal: 0 30px 80px rgba(0, 0, 0, .6);
+  --modal-scrim: rgba(3, 7, 12, .72);
+  --divider-soft: #25323e;
+  --donut-track: #1a2531;
+  --progress-track: #273541;
+  --level-line: #35424d;
+  --level-inactive: #29343e;
+  --sun-accent: #eab15d;
+  --habit-muted: #34483f;
+  --achievement-surface: #244238;
+  --achievement-ink: #91d4ad;
+  --toggle-off: #3b4853;
+}
+
+.app[data-theme="galaxy"] {
+  --font-body: "Manrope", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --bg: #11091b;
+  --surface: #1a1028;
+  --surface-soft: #261638;
+  --pink: #bd79ff;
+  --pink-dark: #914bd0;
+  --pink-light: #39234e;
+  --orange: #eb77bd;
+  --orange-dark: #ba4f91;
+  --orange-light: #41223a;
+  --green: #79d6bf;
+  --yellow: #e8c27c;
+  --text: #f1e8fa;
+  --text-soft: #b7a6c8;
+  --border: #38264a;
+  --shadow: 0 10px 30px rgba(8, 2, 15, .32);
+  --ambient-glow: #301747;
+  --focus-ring: rgba(189, 121, 255, .3);
+  --sidebar-surface: rgba(20, 11, 32, .98);
+  --brand-name: #d2a2ff;
+  --brand-soft: #baa2d0;
+  --text-muted: #9986aa;
+  --text-quiet: #887697;
+  --text-disabled: #70617e;
+  --on-accent: #1a1028;
+  --surface-card: rgba(26, 16, 40, .97);
+  --surface-glass: rgba(38, 22, 56, .78);
+  --nav-gradient: linear-gradient(100deg, #6843a0, #aa4f9a);
+  --level-gradient: linear-gradient(135deg, #914bd0, #eb77bd);
+  --streak-gradient: linear-gradient(145deg, #7242af, #ba4f91);
+  --avatar-gradient: linear-gradient(135deg, #eb77bd, #8152c4);
+  --quote-gradient: linear-gradient(145deg, #261638, #38203e);
+  --shadow-nav: 0 8px 18px rgba(8, 2, 15, .35);
+  --shadow-input: 0 5px 18px rgba(8, 2, 15, .2);
+  --shadow-popover: 0 20px 40px rgba(8, 2, 15, .42);
+  --shadow-button: 0 7px 15px rgba(145, 75, 208, .24);
+  --shadow-modal: 0 30px 80px rgba(8, 2, 15, .55);
+  --modal-scrim: rgba(5, 2, 10, .72);
+  --divider-soft: #31203f;
+  --donut-track: #261638;
+  --progress-track: #30203f;
+  --level-line: #402b54;
+  --level-inactive: #30213e;
+  --sun-accent: #e8c27c;
+  --habit-muted: #30453e;
+  --achievement-surface: #28483c;
+  --achievement-ink: #93dbb9;
+  --toggle-off: #483653;
 }

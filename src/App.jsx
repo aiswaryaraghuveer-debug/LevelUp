@@ -14,6 +14,7 @@ import {
   DAILY_QUEST_XP_LIMIT,
   MIN_DAILY_QUEST_XP,
   MAX_DAILY_QUEST_XP,
+  getStreakAfterQuestCompletion,
 } from "./utils/helperFunctions.js";
 
 const STORAGE_KEY = "levelup-state-v2";
@@ -70,6 +71,9 @@ function normalizeAppState(value) {
     focusSessions: Number.isFinite(value.focusSessions) ? value.focusSessions : initialState.focusSessions,
     focusMinutes: Number.isFinite(value.focusMinutes) ? value.focusMinutes : initialState.focusMinutes,
     weeklyXP: validWeeklyXP ? value.weeklyXP : initialState.weeklyXP,
+    lastQuestCompletionDate: typeof value.lastQuestCompletionDate === "string"
+      ? value.lastQuestCompletionDate
+      : null,
     settings: { ...initialState.settings, ...settings },
   };
 }
@@ -103,9 +107,13 @@ function App() {
 
       const completed = !selectedQuest.completed;
       const xp = Math.min(MAX_XP, Math.max(0, previous.profile.xp + (completed ? selectedQuest.xp : -selectedQuest.xp)));
+      const streakProgress = completed
+        ? getStreakAfterQuestCompletion(previous.profile.streak, previous.lastQuestCompletionDate)
+        : { streak: previous.profile.streak, lastCompletedDate: previous.lastQuestCompletionDate };
       return {
         ...previous,
-        profile: { ...previous.profile, xp, title: getLevelTitle(calculateLevel(xp)) },
+        profile: { ...previous.profile, xp, title: getLevelTitle(calculateLevel(xp)), streak: streakProgress.streak },
+        lastQuestCompletionDate: streakProgress.lastCompletedDate,
         quests: previous.quests.map((quest) =>
           quest.id === questId ? { ...quest, completed } : quest
         ),
@@ -158,7 +166,7 @@ function App() {
       setAppState(importedState);
       setDataTransferMessage("Data imported successfully.");
     } catch {
-      setDataTransferMessage("Import failed. Choose a valid LEVELUP JSON export.");
+      setDataTransferMessage("Import failed. Choose a valid Arise JSON export.");
     }
   }
   function exportData() {
@@ -166,16 +174,16 @@ function App() {
     const fileUrl = URL.createObjectURL(file);
     const downloadLink = document.createElement("a");
     downloadLink.href = fileUrl;
-    downloadLink.download = "levelup-data.json";
+    downloadLink.download = "arise-data.json";
     downloadLink.click();
     URL.revokeObjectURL(fileUrl);
-    setDataTransferMessage("Data exported as levelup-data.json.");
+    setDataTransferMessage("Data exported as arise-data.json.");
   }
   async function exportExcel() {
     try {
       const { default: ExcelJS } = await import("exceljs");
       const workbook = new ExcelJS.Workbook();
-      workbook.creator = "LEVELUP";
+      workbook.creator = "Arise";
 
       const profileSheet = workbook.addWorksheet("Profile");
       profileSheet.columns = [
@@ -235,12 +243,12 @@ function App() {
       const fileUrl = URL.createObjectURL(file);
       const downloadLink = document.createElement("a");
       downloadLink.href = fileUrl;
-      downloadLink.download = "levelup-data.xlsx";
+      downloadLink.download = "arise-data.xlsx";
       downloadLink.click();
       window.setTimeout(() => URL.revokeObjectURL(fileUrl), 0);
-      setDataTransferMessage("Data exported as levelup-data.xlsx.");
+      setDataTransferMessage("Data exported as arise-data.xlsx.");
     } catch {
-      setDataTransferMessage("Excel export failed. Please try again.");
+      setDataTransferMessage("Arise Excel export failed. Please try again.");
     }
   }
    function ChangeUsername(newname) {
@@ -253,7 +261,7 @@ function App() {
     }));
   }
   return (
-    <div className="app" data-theme={appState.settings.theme || "rose"}>
+    <div className="app" data-theme={appState.settings.theme || "rift"}>
         <SideBar navItems={navItems} />
         <div className="main">
           <AppHeader

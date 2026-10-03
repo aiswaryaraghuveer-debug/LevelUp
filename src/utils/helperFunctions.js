@@ -55,6 +55,27 @@ export const DAILY_QUEST_XP_LIMIT = 20;
 export const MIN_DAILY_QUEST_XP = 1;
 export const MAX_DAILY_QUEST_XP = 2;
 
+export function getStreakAfterQuestCompletion(streak, lastCompletedDate, completedAt = new Date()) {
+  const getDateKey = (date) => [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+  const today = getDateKey(completedAt);
+
+  if (lastCompletedDate === today) {
+    return { streak, lastCompletedDate };
+  }
+
+  const yesterday = new Date(completedAt);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  return {
+    streak: lastCompletedDate === getDateKey(yesterday) ? streak + 1 : 1,
+    lastCompletedDate: today,
+  };
+}
+
 export function calculateLevel(xp) {
   return Math.min(MAX_LEVEL, Math.floor(Math.max(0, xp) / XP_PER_LEVEL) + 1);
 }

@@ -22,19 +22,22 @@ export const initialState = {
   focusSessions: 0,
   focusMinutes: 0,
   weeklyXP: [0, 0, 0, 0, 0, 0, 0],
+  lastQuestCompletionDate: null,
   settings: {
     notifications: true,
     compact: false,
-    theme: "rose"
+    theme: "rift"
   }
 };
 
 export const themeOptions = [
+  { value: "rift", label: "Rift Hunter", color: "#70d9ee" },
   { value: "rose", label: "Rose", color: "#996ff5" },
   { value: "ocean", label: "Ocean", color: "#4a9fc0" },
   { value: "forest", label: "Forest", color: "#63945f" },
   { value: "sunset", label: "Sunset", color: "#d7654c" },
-  { value: "midnight", label: "Midnight", color: "#68d5c3" },
+  { value: "midnight", label: "Midnight", color: "#5d9dff" },
+  { value: "galaxy", label: "Galaxy", color: "#bd79ff" },
 ];
 
 export const achievements = [
