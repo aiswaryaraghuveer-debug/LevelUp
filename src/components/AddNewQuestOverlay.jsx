@@ -1,7 +1,12 @@
-import React,{useState} from "react";
+import React,{useEffect,useState} from "react";
 import { DAILY_QUEST_XP_LIMIT, MAX_DAILY_QUEST_XP, MIN_DAILY_QUEST_XP } from "../utils/helperFunctions.js";
 function AddNewQuestOverlay({ onClose, onAddQuest, onEditQuest, quests, dailyXP, questToEdit = null }) {
     const closeOverlay = onClose;
+    useEffect(() => {
+      const onKeyDown = (event) => { if (event.key === "Escape") closeOverlay(); };
+      window.addEventListener("keydown", onKeyDown);
+      return () => window.removeEventListener("keydown", onKeyDown);
+    }, [closeOverlay]);
     const [newQuestTitle,setNewQuestTitle]=useState(questToEdit?.title || "");
     const [newQuestCategory,setNewQuestCategory]=useState(questToEdit?.category || "Learning");
     const [newQuestXp,setNewQuestXp]=useState(questToEdit?.xp || MAX_DAILY_QUEST_XP);
@@ -35,8 +40,8 @@ function AddNewQuestOverlay({ onClose, onAddQuest, onEditQuest, quests, dailyXP,
     }
 
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="modal-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeOverlay(); }}>
+        <div className="modal" role="dialog" aria-modal="true">
           <div className="modal-title">
             <h2>{questToEdit ? "Edit Quest" : "Create a Quest"}</h2>
             <button className="icon-button" type="button" onClick={closeOverlay}>×</button>
