@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DataTransferControls from "./DataTransferControls.jsx";
 import { calculateLevel, getGoalTarget, getLevelTitle, MAX_XP, MIN_GOAL_DURATION_MONTHS, MAX_GOAL_DURATION_MONTHS } from "../utils/helperFunctions.js";
 import { avatarOptions, themeOptions } from "../../data/data.js";
@@ -6,15 +6,31 @@ import { avatarOptions, themeOptions } from "../../data/data.js";
 function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvatar, onChangeGoals, onReset, onToggleNotifications, onChangeTheme, onImportData, onExportData, onExportExcel }) {
     const currentTitle = getLevelTitle(calculateLevel(initialState.profile.xp));
     const goalTarget = getGoalTarget(initialState.goals, initialState.profile.xp);
+    const [durationDraft, setDurationDraft] = useState(String(initialState.goals.durationMonths));
+
+    useEffect(() => {
+        setDurationDraft(String(initialState.goals.durationMonths));
+    }, [initialState.goals.durationMonths]);
 
     function resetSettings() {
         onReset();
     }
 
     function updateDuration(event) {
-        const durationMonths = Number(event.target.value);
+        const value = event.target.value;
+        setDurationDraft(value);
+        if (!/^\d+$/.test(value)) return;
+
+        const durationMonths = Number(value);
         if (Number.isInteger(durationMonths) && durationMonths >= MIN_GOAL_DURATION_MONTHS && durationMonths <= MAX_GOAL_DURATION_MONTHS) {
             onChangeGoals({ durationMonths });
+        }
+    }
+
+    function finishDurationEdit() {
+        const durationMonths = Number(durationDraft);
+        if (!Number.isInteger(durationMonths) || durationMonths < MIN_GOAL_DURATION_MONTHS || durationMonths > MAX_GOAL_DURATION_MONTHS) {
+            setDurationDraft(String(initialState.goals.durationMonths));
         }
     }
 
@@ -55,7 +71,7 @@ function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvata
                         </label>
                         <label className="form-group settings-goal-duration">
                             <span className="form-label">Time to achieve goal (months)</span>
-                            <input className="input" type="number" min={MIN_GOAL_DURATION_MONTHS} max={MAX_GOAL_DURATION_MONTHS} step="1" value={initialState.goals.durationMonths} onChange={updateDuration} />
+                            <input className="input" type="text" inputMode="numeric" pattern="[0-9]*" min={MIN_GOAL_DURATION_MONTHS} max={MAX_GOAL_DURATION_MONTHS} value={durationDraft} onChange={updateDuration} onBlur={finishDurationEdit} />
                         </label>
                     </div>
                     <p className="settings-goal-projection" role="status">
