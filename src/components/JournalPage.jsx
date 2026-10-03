@@ -8,7 +8,7 @@ function JournalPage({ initialState, onChange }) {
   const [important, setImportant] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(true);
-  const [openDates, setOpenDates] = useState(() => new Set([today]));
+  const [openDates, setOpenDates] = useState(() => new Set());
 
   const groupedEntries = useMemo(() => {
     const sorted = [...(initialState.settings.journalEntries || [])].sort((a, b) => {
@@ -83,8 +83,8 @@ function JournalPage({ initialState, onChange }) {
           </button>
           {logsOpen && (
             <>
-              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date) => {
-                const isOpen = openDates.has(date);
+              {Object.keys(groupedEntries).length === 0 ? <p className="tracker-empty">No journal entries yet.</p> : Object.keys(groupedEntries).map((date, index) => {
+                const isOpen = openDates.size ? openDates.has(date) : index === 0;
                 const importantCount = groupedEntries[date].filter((entry) => entry.important).length;
                 return <div className={`tracker-date-group ${isOpen ? "open" : "collapsed"}`} key={date}>
                   <button type="button" className="tracker-date-heading" onClick={() => toggleDate(date)} aria-expanded={isOpen}>
