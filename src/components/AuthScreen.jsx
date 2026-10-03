@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { avatarOptions, themeOptions } from "../../data/data.js";
+import AvatarSvg from "./AvatarSvg.jsx";
 import BrandLogo from "./BrandLogo.jsx";
 import { getRandomMotivationalQuote } from "./MotivationCard.jsx";
 import { MAX_GOAL_DURATION_MONTHS, MIN_GOAL_DURATION_MONTHS } from "../utils/helperFunctions.js";
@@ -116,7 +117,7 @@ function AuthScreen({ onSignIn, onSignUp }) {
                 <div className="auth-avatar-options">
                   {avatarOptions.map((avatar) => (
                     <button key={avatar.value} className={form.avatar === avatar.value ? "selected" : ""} type="button" aria-label={avatar.label} aria-pressed={form.avatar === avatar.value} onClick={() => setForm((previous) => ({ ...previous, avatar: avatar.value }))}>
-                      <span aria-hidden="true">{avatar.value}</span>
+                      <AvatarSvg value={avatar.value} size={38} />
                     </button>
                   ))}
                 </div>
