@@ -2890,3 +2890,14 @@ a {
   background: var(--surface);
   font-size: 14px;
 }
+
+.expense-budget-card { margin-bottom: 18px; padding: 20px; }
+.expense-budget-head { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+.expense-budget-head h2 { margin: 0 0 4px; }
+.expense-budget-head p { margin: 0; color: var(--text-soft); }
+.expense-budget-head > strong { font-family: var(--font-display); font-size: 20px; white-space: nowrap; }
+.budget-progress { height: 10px; margin-top: 16px; overflow: hidden; border-radius: 999px; background: var(--surface-2); }
+.budget-progress span { display: block; height: 100%; border-radius: inherit; background: var(--brand-name); transition: width .25s ease; }
+.budget-caption { margin: 9px 0 0; color: var(--text-soft); font-size: 12px; }
+.budget-over { color: var(--danger, #d64545); }
+@media (max-width: 520px) { .expense-budget-head { align-items: flex-start; flex-direction: column; } }
