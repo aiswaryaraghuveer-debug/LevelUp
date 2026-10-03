@@ -61,7 +61,7 @@ function SettingsPage({ initialState, ChangeUsername, onChangeAge, onChangeAvata
                             <div className="setting-row feature-setting-row" key={key}>
                                 <div><h3>{label}</h3><p>{resetMessage}</p></div>
                                 <div className="feature-actions">
-                                    <button className="btn btn-secondary tracker-reset-button" type="button" disabled={!initialState.settings.features?.[key]} onClick={() => setConfirm({ type:"tracker", key, title:`Reset ${label}?`, message:resetMessage })}>Reset</button>
+                                    {key !== "analytics" && <button className="btn btn-secondary tracker-reset-button" type="button" disabled={!initialState.settings.features?.[key]} onClick={() => setConfirm({ type:"tracker", key, title:`Reset ${label}?`, message:resetMessage })}>Reset</button>}
                                     <button className={"toggle " + (initialState.settings.features?.[key] ? "on" : "")} aria-label={"Toggle " + label} aria-pressed={Boolean(initialState.settings.features?.[key])} onClick={() => onChangeFeatures({ [key]: !initialState.settings.features?.[key] })}><span></span></button>
                                 </div>
                             </div>
