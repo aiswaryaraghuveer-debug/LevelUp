@@ -112,3 +112,4 @@ function JournalPage({ initialState, onChange }) {
     </section>
   );
 }
+export default JournalPage;
