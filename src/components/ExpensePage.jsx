@@ -10,6 +10,9 @@ function ExpensePage({ initialState, onChange }) {
   const [description, setDescription] = useState("");
   const [income, setIncome] = useState(String(initialState.settings.expenseIncome || ""));
   const [goal, setGoal] = useState(String(initialState.settings.expenseGoal || ""));
+  const [formOpen, setFormOpen] = useState(false);
+  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(true);
   const [openDates, setOpenDates] = useState(() => new Set());
   const entries = useMemo(() => [...(initialState.settings.expenses || [])].sort((a, b) => String(b.createdAt || b.id || "").localeCompare(String(a.createdAt || a.id || ""))), [initialState.settings.expenses]);
   const groupedEntries = useMemo(() => {
@@ -74,7 +77,7 @@ function ExpensePage({ initialState, onChange }) {
         <div className="budget-progress"><span style={{ width: `${goalProgress}%` }} /></div>
         {spendingGoal > 0 && <p className="budget-caption">₹{total.toFixed(2)} of ₹{spendingGoal.toFixed(2)} spent {goalRemaining < 0 ? "— goal exceeded" : ""}</p>}
       </div>
-      <div className="tracker-grid">
+      <div className="tracker-grid tracker-layout">
         <div>
           <form className="card tracker-form" onSubmit={saveBudget}>
             <h2>Income & goal</h2>
