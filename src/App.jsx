@@ -1,4 +1,4 @@
-import React ,{useEffect, useState} from "react";
+import React ,{useEffect, useRef, useState} from "react";
 import AppHeader from "./components/AppHeader";
 import AuthScreen from "./components/AuthScreen.jsx";
 import SideBar from "./components/SideBar";
@@ -10,6 +10,8 @@ import JournalPage from "./components/JournalPage.jsx";
 import MoodPage from "./components/MoodPage.jsx";
 import ExpensePage from "./components/ExpensePage.jsx";
 import CaloriePage from "./components/CaloriePage.jsx";
+import AnalyticsPage from "./components/AnalyticsPage.jsx";
+import DailyBriefing from "./components/DailyBriefing.jsx";
 import "./styles.css";
 import { avatarOptions, navItems, initialState, themeOptions } from "../data/data.js";
 import { Route, Routes } from "react-router-dom";
@@ -192,6 +194,28 @@ function normalizeAppState(value) {
   };
 }
 
+function playQuestCompleteSound() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const now = context.currentTime;
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, now + index * 0.09);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + index * 0.09 + 0.025);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.09 + 0.22);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(now + index * 0.09);
+      oscillator.stop(now + index * 0.09 + 0.24);
+    });
+    window.setTimeout(() => context.close().catch(() => {}), 700);
+  } catch {}
+}
+
 function loadAppState(storageKey) {
   try {
     const savedState = window.localStorage.getItem(storageKey);
@@ -355,7 +379,10 @@ function AuthenticatedApp({ account, onLogout }) {
         quest.id === questId || (quest.completed && quest.completedOn === today)
       );
 
-    if (completesFinalQuest) setQuestCelebrationId((previous) => previous + 1);
+    if (completesFinalQuest) {
+      setQuestCelebrationId((previous) => previous + 1);
+      playQuestCompleteSound();
+    }
 
     setAppState((previous) => {
       const currentDate = getLocalDateKey();
@@ -486,7 +513,8 @@ function AuthenticatedApp({ account, onLogout }) {
   }
   async function importData(file) {
     try {
-      const importedState = normalizeAppState(JSON.parse(await file.text()));
+      const parsed = JSON.parse(await file.text());
+      const importedState = normalizeAppState(parsed?.state && typeof parsed.state === "object" ? parsed.state : parsed);
       setAppState(importedState);
       setDataTransferMessage("Data imported successfully.");
     } catch {
@@ -633,6 +661,15 @@ function AuthenticatedApp({ account, onLogout }) {
   }
   return (
     <div className="app" data-theme={appState.settings.theme || "rift"}>
+        {levelUpEvent && (
+          <div key={levelUpEvent.id} className={`level-up-celebration level-up-style-${((levelUpEvent.level - 1) % 5) + 1}`} role="status" aria-live="assertive">
+            <div className="level-up-rune">✦</div>
+            <div className="level-up-label">LEVEL UP</div>
+            <strong>{levelUpEvent.level}</strong>
+            <span>{getLevelTitle(levelUpEvent.level)}</span>
+          </div>
+        )}
+        {briefingMode && <DailyBriefing state={appState} mode={briefingMode} onClose={() => setBriefingMode(null)} />}
         {questCelebrationId > 0 && (
           <div
             key={questCelebrationId}
@@ -665,11 +702,12 @@ function AuthenticatedApp({ account, onLogout }) {
             <Routes>
               <Route index element={<HomePage initialState={appState} onToggleQuest={toggleQuest} AddQuest={AddQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />}/>
               <Route path="/quests" element={<QuestPage initialState={appState} AddQuest={AddQuest} onToggleQuest={toggleQuest} onDeleteQuest={deleteQuest} onEditQuest={editQuest} />} />
-              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
+              <Route path="/settings" element={<SettingsPage initialState={appState} ChangeUsername={ChangeUsername} onChangeAge={changeAge} onChangeAvatar={changeAvatar} onChangeGoals={changeGoals} onReset={resetData} onResetTracker={resetTracker} onToggleNotifications={toggleNotifications} onChangeNotificationTime={changeNotificationTime} onChangeFeatures={changeFeatures} onChangeTheme={changeTheme} onImportData={importData} onExportData={exportData} onExportExcel={exportExcel}/>} />
               <Route path="/journal" element={<JournalPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/mood" element={<MoodPage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/expenses" element={<ExpensePage initialState={appState} onChange={changeTrackerData} />} />
               <Route path="/calories" element={<CaloriePage initialState={appState} onChange={changeTrackerData} />} />
+              <Route path="/analytics" element={<AnalyticsPage initialState={appState} />} />
             </Routes>
           </div>
           <footer className="app-footer">

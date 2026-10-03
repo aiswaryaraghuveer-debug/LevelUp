@@ -24,6 +24,7 @@ export const initialState = {
   focusSessions: 0,
   focusMinutes: 0,
   weeklyXP: [0, 0, 0, 0, 0, 0, 0],
+  activityHistory: [],
   lastQuestCompletionDate: null,
   goals: {
     description: "",
@@ -83,6 +84,7 @@ export const achievements = [
 export const navItems = [
   { label: "Dashboard", path: "/", icon: "⌂" },
   { label: "Quests", path: "/quests", icon: "◎" },
+  { label: "Analytics", path: "/analytics", icon: "▥" },
   { label: "Daily Journal", path: "/journal", icon: "✎", featureKey: "journal" },
   { label: "Mood Tracker", path: "/mood", icon: "☻", featureKey: "mood" },
   { label: "Expense Tracker", path: "/expenses", icon: "₹", featureKey: "expenses" },
